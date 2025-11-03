@@ -5,67 +5,110 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
-{
+new #[Layout('layouts.guest')] class extends Component {
     public LoginForm $form;
 
-    /**
-     * Handle an incoming authentication request.
-     */
     public function login(): void
     {
         $this->validate();
-
         $this->form->authenticate();
-
         Session::regenerate();
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $this->redirectIntended(default: route('admin.dashboard', absolute: false), navigate: true);
     }
-}; ?>
+};
+?>
 
-<div>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<main class="main-content mt-0">
+		<section>
+				<div class="page-header min-vh-100">
+						<div class="container">
+								<div class="row">
+										<div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column mx-lg-0 mx-auto">
+												<div class="card card-plain">
+														<div class="card-header pb-0 text-start">
+																<h4 class="font-weight-bolder">Login</h4>
+																<p class="mb-0">Masukan email dan password untuk login.</p>
+														</div>
 
-    <form wire:submit="login">
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="form.email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('form.email')" class="mt-2" />
-        </div>
+														<div class="card-body">
+																<!-- Session Status -->
+																<x-auth-session-status class="mb-3" :status="session('status')" />
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+																<form wire:submit.prevent="login" role="form">
+																		<!-- Email Address -->
+																		<div class="mb-3">
+																				<input type="email" id="email" wire:model="form.email"
+																						class="form-control form-control-lg @error('form.email') is-invalid @enderror" placeholder="Email"
+																						required autofocus autocomplete="username">
+																				@error('form.email')
+																						<span class="invalid-feedback d-block mt-1">{{ $message }}</span>
+																				@enderror
+																		</div>
 
-            <x-text-input wire:model="form.password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+																		<!-- Password -->
+																		<div class="mb-3">
+																				<input type="password" id="password" wire:model="form.password"
+																						class="form-control form-control-lg @error('form.password') is-invalid @enderror"
+																						placeholder="Password" required autocomplete="current-password">
+																				@error('form.password')
+																						<span class="invalid-feedback d-block mt-1">{{ $message }}</span>
+																				@enderror
+																		</div>
 
-            <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
-        </div>
+																		<!-- Remember Me -->
+																		<div class="form-check form-switch mb-3">
+																				<input wire:model="form.remember" class="form-check-input" type="checkbox" id="rememberMe">
+																				<label class="form-check-label" for="rememberMe">Ingat saya</label>
+																		</div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember" class="inline-flex items-center">
-                <input wire:model="form.remember" id="remember" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+																		<!-- Forgot Password -->
+																		{{-- @if (Route::has('password.request'))
+																				<div class="mb-3 text-end">
+																						<a class="text-primary text-gradient font-weight-bold text-sm"
+																								href="{{ route('password.request') }}" wire:navigate>
+																								Forgot your password?
+																						</a>
+																				</div>
+																		@endif --}}
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}" wire:navigate>
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+																		<!-- Submit Button -->
+																		<div class="text-center">
+																				<button type="submit" class="btn btn-lg btn-primary w-100 mb-0">
+																						Log In
+																				</button>
+																		</div>
+																</form>
+														</div>
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</div>
+														<div class="card-footer px-lg-2 px-1 pt-0 text-center">
+																<p class="mx-auto mb-4 text-sm">
+																		Belum punya akun ?
+																		<a href="{{ route('register') }}" class="text-primary text-gradient font-weight-bold">Sign up</a>
+																</p>
+														</div>
+												</div>
+										</div>
+
+										<!-- Right side image section -->
+										<div
+												class="col-6 d-lg-flex d-none h-100 position-absolute justify-content-center flex-column end-0 top-0 my-auto pe-0 text-center">
+												<div
+														class="position-relative bg-gradient-primary h-100 border-radius-lg d-flex flex-column justify-content-center m-3 overflow-hidden px-7"
+														style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg');
+                                   background-size: cover;">
+														<span class="mask bg-gradient-primary opacity-6"></span>
+														<h4 class="font-weight-bolder position-relative mt-5 text-white">
+																"Attention is the new currency"
+														</h4>
+														<p class="position-relative text-white">
+																The more effortless the writing looks, the more effort the writer actually put into the process.
+														</p>
+												</div>
+										</div>
+
+								</div>
+						</div>
+				</div>
+		</section>
+</main>

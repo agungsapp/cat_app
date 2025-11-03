@@ -8,81 +8,125 @@ use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
-new #[Layout('layouts.guest')] class extends Component
-{
+new #[Layout('layouts.guest')] class extends Component {
     public string $name = '';
     public string $email = '';
     public string $password = '';
     public string $password_confirmation = '';
 
-    /**
-     * Handle an incoming registration request.
-     */
     public function register(): void
     {
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
 
-        event(new Registered($user = User::create($validated)));
+        event(new Registered(($user = User::create($validated))));
 
         Auth::login($user);
 
         $this->redirect(route('dashboard', absolute: false), navigate: true);
     }
-}; ?>
+};
+?>
 
-<div>
-    <form wire:submit="register">
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" class="block mt-1 w-full" type="text" name="name" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+<main class="main-content mt-0">
+		<div class="page-header align-items-start min-vh-50 border-radius-lg m-3 pb-11 pt-5"
+				style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signup-cover.jpg'); background-position: top;">
+				<span class="mask bg-gradient-dark opacity-6"></span>
+				<div class="container">
+						<div class="row justify-content-center">
+								<div class="col-lg-5 mx-auto text-center">
+										<h1 class="mb-2 mt-5 text-white">Selamat Datang !</h1>
+										<p class="text-lead text-white">
+												Silahkan mendaftar untuk membuat akun dan login.
+										</p>
+								</div>
+						</div>
+				</div>
+		</div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+		<div class="container">
+				<div class="row mt-lg-n10 mt-md-n11 mt-n10 justify-content-center">
+						<div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
+								<div class="card z-index-0">
+										<div class="card-header pt-4 text-center">
+												<h5>Register</h5>
+										</div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+										<div class="card-body">
+												<form wire:submit.prevent="register" role="form">
 
-            <x-text-input wire:model="password" id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
+														<!-- Name -->
+														<div class="mb-3">
+																<input wire:model="name" type="text" id="name"
+																		class="form-control @error('name') is-invalid @enderror" placeholder="Name" required autofocus
+																		autocomplete="name">
+																@error('name')
+																		<span class="invalid-feedback d-block mt-1">{{ $message }}</span>
+																@enderror
+														</div>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+														<!-- Email -->
+														<div class="mb-3">
+																<input wire:model="email" type="email" id="email"
+																		class="form-control @error('email') is-invalid @enderror" placeholder="Email" required
+																		autocomplete="username">
+																@error('email')
+																		<span class="invalid-feedback d-block mt-1">{{ $message }}</span>
+																@enderror
+														</div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+														<!-- Password -->
+														<div class="mb-3">
+																<input wire:model="password" type="password" id="password"
+																		class="form-control @error('password') is-invalid @enderror" placeholder="Password" required
+																		autocomplete="new-password">
+																@error('password')
+																		<span class="invalid-feedback d-block mt-1">{{ $message }}</span>
+																@enderror
+														</div>
 
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+														<!-- Confirm Password -->
+														<div class="mb-3">
+																<input wire:model="password_confirmation" type="password" id="password_confirmation"
+																		class="form-control @error('password_confirmation') is-invalid @enderror"
+																		placeholder="Confirm Password" required autocomplete="new-password">
+																@error('password_confirmation')
+																		<span class="invalid-feedback d-block mt-1">{{ $message }}</span>
+																@enderror
+														</div>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
+														<!-- Terms & Conditions -->
+														<div class="form-check form-check-info text-start">
+																<input class="form-check-input" type="checkbox" id="flexCheckDefault" checked>
+																<label class="form-check-label" for="flexCheckDefault">
+																		I agree to the
+																		<a href="javascript:;" class="text-dark font-weight-bolder">Terms and Conditions</a>
+																</label>
+														</div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}" wire:navigate>
-                {{ __('Already registered?') }}
-            </a>
+														<!-- Submit Button -->
+														<div class="text-center">
+																<button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2">
+																		Sign up
+																</button>
+														</div>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
-    </form>
-</div>
+														<!-- Already have account -->
+														<p class="mb-0 mt-3 text-center text-sm">
+																Sudah punya akun ?
+																<a href="{{ route('login') }}" class="text-dark font-weight-bolder" wire:navigate>
+																		Sign in
+																</a>
+														</p>
+												</form>
+										</div>
+								</div>
+						</div>
+				</div>
+		</div>
+</main>
