@@ -4,10 +4,11 @@ namespace App\Livewire\Admin\Master;
 
 use Livewire\Component;
 use App\Models\JenisUjian;
-// use Jantinnerezo\LivewireAlert\Facades\LivewireAlert;
+use App\Traits\HasAlert;
 
 class JenisUjianPage extends Component
 {
+    use HasAlert;
 
     public $nama;
     public $jenisUjianId;
@@ -37,9 +38,7 @@ class JenisUjianPage extends Component
             'nama' => $this->nama,
         ]);
 
-        LivewireAlert::success('success', 'Berhasil!', [
-            'text' => 'Jenis ujian berhasil ditambahkan.',
-        ]);
+        $this->alertSuccess("Berhasil!", "jenis ujian berhasil di tambahkan.");
 
         $this->resetForm();
     }
@@ -59,28 +58,29 @@ class JenisUjianPage extends Component
         $jenis = JenisUjian::findOrFail($this->jenisUjianId);
         $jenis->update(['nama' => $this->nama]);
 
-        LivewireAlert::success('success', 'Berhasil!', [
-            'text' => 'Jenis ujian berhasil diperbarui.',
-        ]);
+        $this->alertSuccess("Berhasil!", "jenis ujian berhasil di perbarui.");
+
 
         $this->resetForm();
     }
 
     public function confirmDelete($id)
     {
-        LivewireAlert::confirm('Apakah kamu yakin ingin menghapus data ini?', [
-            'onConfirmed' => "deleteConfirmed($id)",
-            'cancelButtonText' => 'Batal',
-            'confirmButtonText' => 'Ya, Hapus',
-        ]);
+        $this->alertConfirm(
+            'Hapus Data?',
+            'Yakin ingin menghapus jenis ujian ini?',
+            'deleteConfirmed',
+            ['id' => $id]
+        );
     }
 
-    public function deleteConfirmed($id)
+    public function deleteConfirmed($data)
     {
+        $id = $data['id'] ?? null;
+        if (! $id) return;
+
         JenisUjian::find($id)?->delete();
 
-        LivewireAlert::success('success', 'Dihapus!', [
-            'text' => 'Jenis ujian berhasil dihapus.',
-        ]);
+        $this->alertSuccess('Dihapus!', 'Jenis ujian berhasil dihapus.');
     }
 }

@@ -13,7 +13,7 @@
 		<div class="navbar-collapse collapse w-auto" id="sidenav-collapse-main">
 				<ul class="navbar-nav">
 						<li class="nav-item">
-								<a class="nav-link active" href="../pages/dashboard.html">
+								<a class="nav-link {{ Route::is('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">
 										<div
 												class="icon icon-shape icon-sm border-radius-md d-flex align-items-center justify-content-center me-2 text-center">
 												<i class="ni ni-tv-2 text-dark text-sm opacity-10"></i>
@@ -26,13 +26,27 @@
 								<h6 class="text-uppercase font-weight-bolder opacity-6 ms-2 ps-4 text-xs">Data Master</h6>
 						</li>
 						<li class="nav-item">
-								<a class="nav-link" href="../pages/sign-in.html">
+								<a class="nav-link {{ Route::is('admin.master.jenis-ujian') ? 'active' : '' }}"
+										href="{{ route('admin.master.jenis-ujian') }}">
 										<div
 												class="icon icon-shape icon-sm border-radius-md d-flex align-items-center justify-content-center me-2 text-center">
 												<i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i>
 										</div>
-										<span class="nav-link-text ms-1">Jenis Soal</span>
+										<span class="nav-link-text ms-1">Jenis Ujian</span>
 								</a>
+						</li>
+						<li class="nav-item">
+								<a class="nav-link {{ Route::is('admin.master.tipe-ujian') ? 'active' : '' }}"
+										href="{{ route('admin.master.tipe-ujian') }}">
+										<div
+												class="icon icon-shape icon-sm border-radius-md d-flex align-items-center justify-content-center me-2 text-center">
+												<i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i>
+										</div>
+										<span class="nav-link-text ms-1">Tipe Ujian</span>
+								</a>
+						</li>
+						<li class="nav-item mt-3">
+								<h6 class="text-uppercase font-weight-bolder opacity-6 ms-2 ps-4 text-xs">Data Lain</h6>
 						</li>
 
 

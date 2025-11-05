@@ -34,12 +34,14 @@
 								</div>
 								<div class="card-body px-0 pb-2 pt-0">
 										<div class="table-responsive p-3">
-												<table class="align-items-center mb-0 table">
+												<table id="dataTable" class="align-items-center mb-0 table">
 														<thead>
 																<tr>
-																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">#</th>
+																		<th style="width: 10%" class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">#
+																		</th>
 																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Nama Jenis Ujian</th>
-																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Aksi</th>
+																		<th style="width: 20%" class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Aksi
+																		</th>
 																</tr>
 														</thead>
 														<tbody>
@@ -65,4 +67,8 @@
 						</div>
 				</div>
 		</div>
+
+		@push('js')
+				<script></script>
+		@endpush
 </div>
