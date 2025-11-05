@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Admin\BankSoalPage;
 use App\Livewire\Admin\DashboardPage;
 use App\Livewire\Admin\Master\JenisUjianPage;
 use App\Livewire\Admin\Master\TipeUjianPage;
@@ -13,6 +14,7 @@ Route::prefix('admin/')->name('admin.')->group(function () {
         Route::get('jenis-ujian', JenisUjianPage::class)->name('jenis-ujian');
         Route::get('tipe-ujian', TipeUjianPage::class)->name('tipe-ujian');
     });
+    Route::get('bank-soal', BankSoalPage::class)->name('bank-soal');
 });
 
 Route::view('dashboard', 'dashboard')

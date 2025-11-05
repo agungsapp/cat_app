@@ -46,7 +46,16 @@
 								</a>
 						</li>
 						<li class="nav-item mt-3">
-								<h6 class="text-uppercase font-weight-bolder opacity-6 ms-2 ps-4 text-xs">Data Lain</h6>
+								<h6 class="text-uppercase font-weight-bolder opacity-6 ms-2 ps-4 text-xs">Data ujian</h6>
+						</li>
+						<li class="nav-item">
+								<a class="nav-link {{ Route::is('admin.bank-soal') ? 'active' : '' }}" href="{{ route('admin.bank-soal') }}">
+										<div
+												class="icon icon-shape icon-sm border-radius-md d-flex align-items-center justify-content-center me-2 text-center">
+												<i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i>
+										</div>
+										<span class="nav-link-text ms-1">Bank Soal</span>
+								</a>
 						</li>
 
 

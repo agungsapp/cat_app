@@ -4,7 +4,7 @@
 						<div class="card mb-4">
 								<div class="card-body">
 										<form wire:submit.prevent="{{ $updateMode ? 'update' : 'store' }}">
-												<div class="row">
+												<div class="row mb-4">
 														<div class="col-md-4">
 																<label for="nama" class="form-label">Jenis Ujian</label>
 																<input type="text" wire:model="nama" class="form-control @error('nama') is-invalid @enderror"
@@ -14,7 +14,9 @@
 																@enderror
 														</div>
 
-														<div class="col-md-3 align-self-end">
+												</div>
+												<div class="row">
+														<div class="col-12 align-self-end">
 																<button type="submit" class="btn btn-primary">
 																		{{ $updateMode ? 'Update' : 'Simpan' }}
 																</button>
@@ -31,12 +33,15 @@
 						<div class="card">
 								<div class="card-header d-flex justify-content-between align-items-center pb-0">
 										<h5 class="mb-0">Daftar Jenis Ujian</h5>
-
-										<input type="text" wire:model.live="search" class="form-control w-25" placeholder="Cari...">
 								</div>
 
-								<div class="card-body px-0 pb-2 pt-0">
-										<div class="table-responsive p-3">
+								<div class="card-body pb-2 pt-0">
+										<div class="row">
+												<div class="col-12">
+														<input type="text" wire:model.live="search" class="form-control w-25 ms-auto" placeholder="Cari...">
+												</div>
+										</div>
+										<div class="table-responsive p-3 px-0">
 												<table id="dataTable" class="align-items-center mb-0 table">
 														<thead>
 																<tr>
@@ -61,7 +66,10 @@
 																		</tr>
 																@empty
 																		<tr>
-																				<td colspan="3" class="text-muted text-center">Belum ada data.</td>
+																				<td colspan="3" class="text-muted p-4 text-center">
+																						<i class='bxr fs-1 text-secondary bx-archive'></i>
+																						<p class="fs-3 text-secondary">- Belum ada data -</p>
+																				</td>
 																		</tr>
 																@endforelse
 														</tbody>
