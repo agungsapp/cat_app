@@ -5,12 +5,17 @@ namespace App\Livewire\Admin\Master;
 use Livewire\Component;
 use App\Models\JenisUjian;
 use App\Traits\HasAlert;
+use Livewire\WithPagination;
 
 class JenisUjianPage extends Component
 {
-    use HasAlert;
+    use WithPagination, HasAlert;
+
+    protected string $paginationTheme = 'bootstrap';
+
 
     public $nama;
+    public $search = '';
     public $jenisUjianId;
     public $updateMode = false;
 
@@ -18,10 +23,18 @@ class JenisUjianPage extends Component
         'nama' => 'required|string|max:255',
     ];
 
+    // Biar pagination reset saat search berubah
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
         return view('livewire.admin.master.jenis-ujian-page', [
-            'listJenisUjian' => JenisUjian::latest()->get(),
+            'listJenisUjian' => JenisUjian::where('nama', 'like', '%' . $this->search . '%')
+                ->latest()
+                ->paginate(10),
         ]);
     }
 

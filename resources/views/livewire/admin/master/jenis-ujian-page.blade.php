@@ -29,9 +29,12 @@
 						</div>
 
 						<div class="card">
-								<div class="card-header pb-0">
+								<div class="card-header d-flex justify-content-between align-items-center pb-0">
 										<h5 class="mb-0">Daftar Jenis Ujian</h5>
+
+										<input type="text" wire:model.live="search" class="form-control w-25" placeholder="Cari...">
 								</div>
+
 								<div class="card-body px-0 pb-2 pt-0">
 										<div class="table-responsive p-3">
 												<table id="dataTable" class="align-items-center mb-0 table">
@@ -50,9 +53,10 @@
 																				<td>{{ $index + 1 }}</td>
 																				<td>{{ $item->nama }}</td>
 																				<td>
-																						<button wire:click="edit({{ $item->id }})" class="btn btn-sm btn-info">Edit</button>
-																						<button wire:click="confirmDelete({{ $item->id }})"
-																								class="btn btn-sm btn-danger">Hapus</button>
+																						<button wire:click="edit({{ $item->id }})" class="btn btn-sm btn-info"><x-icon
+																										name="edit" /></button>
+																						<button wire:click="confirmDelete({{ $item->id }})" class="btn btn-sm btn-danger"><x-icon
+																										name="delete" /></button>
 																				</td>
 																		</tr>
 																@empty
@@ -63,12 +67,16 @@
 														</tbody>
 												</table>
 										</div>
+
+								</div>
+								<div class="card-footer">
+										<div class="mt-3 px-3">
+
+												{{ $listJenisUjian->links() }}
+										</div>
+
 								</div>
 						</div>
 				</div>
 		</div>
-
-		@push('js')
-				<script></script>
-		@endpush
 </div>

@@ -30,6 +30,7 @@
 		<script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
 		<!-- CSS Files -->
 		<link id="pagestyle" href="{{ asset('argon') }}/css/argon-dashboard.css?v=2.1.0" rel="stylesheet" />
+		<link href='https://cdn.boxicons.com/3.0.3/fonts/basic/boxicons.min.css' rel='stylesheet'>
 
 		@vite('resources/js/app.js')
 
