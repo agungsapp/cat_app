@@ -41,6 +41,6 @@ class Soal extends Model
 
     public function sesi()
     {
-        return $this->belongsToMany(SesiUjian::class, 'sesi_soal');
+        return $this->belongsToMany(SesiUjian::class, 'sesi_soals');
     }
 }

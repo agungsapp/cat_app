@@ -18,9 +18,15 @@ Route::prefix('admin/')->name('admin.')->group(function () {
         Route::get('jenis-ujian', JenisUjianPage::class)->name('jenis-ujian');
         Route::get('tipe-ujian', TipeUjianPage::class)->name('tipe-ujian');
     });
+    // bank soal
     Route::get('bank-soal', BankSoalPage::class)->name('bank-soal.index');
     Route::get('/bank-soal/create', BankSoalCreate::class)->name('bank-soal.create');
     Route::get('/bank-soal/{id}/edit', BankSoalEdit::class)->name('bank-soal.edit');
+    // sesi ujian
+    Route::get('/sesi-ujian', \App\Livewire\Admin\SesiUjianIndex::class)->name('sesi-ujian.index');
+    Route::get('/sesi-ujian/create', \App\Livewire\Admin\SesiUjianCreate::class)->name('sesi-ujian.create');
+    Route::get('/sesi-ujian/{id}/edit', \App\Livewire\Admin\SesiUjianEdit::class)->name('sesi-ujian.edit');
+    Route::get('/sesi-ujian/{id}/assign', \App\Livewire\Admin\SesiUjianAssignSoal::class)->name('sesi-ujian.assign');
 });
 
 Route::view('dashboard', 'dashboard')

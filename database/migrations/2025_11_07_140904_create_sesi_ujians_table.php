@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('judul');
             $table->text('deskripsi')->nullable();
-            $table->foreignId('tipe_ujian_id')->constrained('tipe_ujian')->cascadeOnDelete();
+            $table->foreignId('tipe_ujian_id')->constrained('tipe_ujians')->cascadeOnDelete();
             $table->integer('durasi_menit')->default(90);
             $table->boolean('is_active')->default(false);
             $table->dateTime('waktu_mulai')->nullable();
