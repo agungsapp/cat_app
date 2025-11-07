@@ -1,12 +1,16 @@
 <?php
 
+use App\Livewire\Admin\BankSoalCreate;
+use App\Livewire\Admin\BankSoalEdit;
 use App\Livewire\Admin\BankSoalPage;
 use App\Livewire\Admin\DashboardPage;
 use App\Livewire\Admin\Master\JenisUjianPage;
 use App\Livewire\Admin\Master\TipeUjianPage;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+Route::get('/', function () {
+    return redirect()->to('/admin/dashboard');
+});
 
 Route::prefix('admin/')->name('admin.')->group(function () {
     Route::get('dashboard', DashboardPage::class)->name('dashboard');
@@ -14,7 +18,9 @@ Route::prefix('admin/')->name('admin.')->group(function () {
         Route::get('jenis-ujian', JenisUjianPage::class)->name('jenis-ujian');
         Route::get('tipe-ujian', TipeUjianPage::class)->name('tipe-ujian');
     });
-    Route::get('bank-soal', BankSoalPage::class)->name('bank-soal');
+    Route::get('bank-soal', BankSoalPage::class)->name('bank-soal.index');
+    Route::get('/bank-soal/create', BankSoalCreate::class)->name('bank-soal.create');
+    Route::get('/bank-soal/{id}/edit', BankSoalEdit::class)->name('bank-soal.edit');
 });
 
 Route::view('dashboard', 'dashboard')
