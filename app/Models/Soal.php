@@ -38,4 +38,9 @@ class Soal extends Model
     {
         return $this->opsi()->where('is_correct', true)->first();
     }
+
+    public function sesi()
+    {
+        return $this->belongsToMany(SesiUjian::class, 'sesi_soal');
+    }
 }
