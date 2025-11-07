@@ -6,6 +6,7 @@ use App\Livewire\Admin\BankSoalPage;
 use App\Livewire\Admin\DashboardPage;
 use App\Livewire\Admin\Master\JenisUjianPage;
 use App\Livewire\Admin\Master\TipeUjianPage;
+use App\Livewire\Peserta\PesertaDashboardIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -28,6 +29,12 @@ Route::prefix('admin/')->name('admin.')->middleware(['auth'])->group(function ()
     Route::get('/sesi-ujian/{id}/edit', \App\Livewire\Admin\SesiUjianEdit::class)->name('sesi-ujian.edit');
     Route::get('/sesi-ujian/{id}/assign', \App\Livewire\Admin\SesiUjianAssignSoal::class)->name('sesi-ujian.assign');
 });
+
+Route::prefix('peserta/')->name('peserta.')->middleware(['auth'])->group(
+    function () {
+        Route::get('dashboard', PesertaDashboardIndex::class)->name('dashboard.index');
+    }
+);
 
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])
