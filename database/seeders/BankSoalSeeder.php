@@ -14,7 +14,7 @@ class BankSoalSeeder extends Seeder
     {
         // Pastikan ada Jenis Ujian
 
-        Soal::factory(3)->create()->each(function ($soal) {
+        Soal::factory(10)->create()->each(function ($soal) {
             $opsiCount = rand(4, 6);
             $correctIndex = rand(0, $opsiCount - 1);
 

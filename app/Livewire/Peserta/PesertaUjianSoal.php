@@ -4,38 +4,48 @@ namespace App\Livewire\Peserta;
 
 use App\Models\HasilUjian;
 use App\Models\JawabanPeserta;
-use App\Models\SesiUjian;
+use App\Traits\HasAlert;
 use Livewire\Component;
 
 class PesertaUjianSoal extends Component
 {
-    public $hasilId;
-    public $nomor;
-    public $hasil;
-    public $soal;
-    public $soalList;
-    public $selectedOpsi = null;
-    public $totalSoal;
+    use HasAlert;
 
-    public function mount($hasil_id, $nomor)
+    public $hasilId;
+    public $hasil;
+    public $soalList;
+    public $totalSoal = 0;
+    public $nomor = 1;
+    public $selectedOpsi = [];
+    public $jawabanStatus = [];
+    public $waktuSisa;
+
+    public function mount($hasil_id)
     {
         $this->hasilId = $hasil_id;
-        $this->nomor = $nomor;
+        $this->hasil = HasilUjian::with(['sesiUjian.soal.opsi', 'sesiUjian.soal.jenis'])
+            ->findOrFail($hasil_id);
 
-        $this->hasil = HasilUjian::with('sesiUjian.soal.opsi')->findOrFail($hasil_id);
-
+        // Security check
         if ($this->hasil->user_id !== auth()->id()) {
-            abort(403);
+            abort(403, 'Unauthorized');
+        }
+
+        // Check if already finished
+        if ($this->hasil->selesai_at) {
+            return redirect()->route('peserta.ujian.selesai', $this->hasilId);
         }
 
         $this->loadSoalList();
-        $this->loadCurrentSoal();
+        $this->loadJawabanStatus();
+        $this->updateWaktuSisa();
     }
 
     public function loadSoalList()
     {
+        // Group by jenis_ujian_id, shuffle each group, then flatten
         $this->soalList = $this->hasil->sesiUjian->soal()
-            ->with('opsi')
+            ->with(['opsi', 'jenis'])
             ->get()
             ->groupBy('jenis_ujian_id')
             ->map(fn($group) => $group->shuffle())
@@ -45,63 +55,158 @@ class PesertaUjianSoal extends Component
         $this->totalSoal = $this->soalList->count();
     }
 
-    public function loadCurrentSoal()
+    public function loadJawabanStatus()
     {
-        if ($this->nomor < 1 || $this->nomor > $this->totalSoal) {
-            return redirect()->route('peserta.ujian.selesai', $this->hasilId);
+        // Load existing answers
+        $jawaban = JawabanPeserta::where('hasil_ujian_id', $this->hasilId)
+            ->get()
+            ->keyBy('soal_id');
+
+        // Initialize status for all questions
+        foreach ($this->soalList as $index => $soal) {
+            $nomor = $index + 1;
+
+            if (isset($jawaban[$soal->id])) {
+                $this->selectedOpsi[$nomor] = $jawaban[$soal->id]->opsi_id;
+                $this->jawabanStatus[$nomor] = 'terjawab';
+            } else {
+                $this->selectedOpsi[$nomor] = null;
+                $this->jawabanStatus[$nomor] = 'belum';
+            }
+        }
+    }
+
+    public function pilihJawaban($nomor, $opsiId)
+    {
+        $soal = $this->soalList->get($nomor - 1);
+
+        if (!$soal) {
+            return;
         }
 
-        $this->soal = $this->soalList->get($this->nomor - 1);
+        $opsi = $soal->opsi->find($opsiId);
 
-        // Load jawaban sebelumnya
-        $jawaban = JawabanPeserta::where('hasil_ujian_id', $this->hasilId)
-            ->where('soal_id', $this->soal->id)
-            ->first();
+        if (!$opsi) {
+            return;
+        }
 
-        $this->selectedOpsi = $jawaban?->opsi_id;
+        $benar = $opsi->is_correct ?? false;
+
+        try {
+            // Save to database immediately
+            JawabanPeserta::updateOrCreate(
+                [
+                    'hasil_ujian_id' => $this->hasilId,
+                    'soal_id' => $soal->id
+                ],
+                [
+                    'opsi_id' => $opsiId,
+                    'benar' => $benar
+                ]
+            );
+
+            // Update local state
+            $this->selectedOpsi[$nomor] = $opsiId;
+            $this->jawabanStatus[$nomor] = 'terjawab';
+
+            // Success notification (subtle)
+            $this->dispatch('jawaban-tersimpan');
+        } catch (\Exception $e) {
+            $this->alertError('Gagal Menyimpan', 'Terjadi kesalahan saat menyimpan jawaban.');
+        }
     }
 
-    public function pilihJawaban($opsiId)
+    public function pindahSoal($nomorBaru)
     {
-        $this->selectedOpsi = $opsiId;
+        if ($nomorBaru >= 1 && $nomorBaru <= $this->totalSoal) {
+            $this->nomor = $nomorBaru;
+        }
+    }
 
-        $opsi = $this->soal->opsi->find($opsiId);
-        $benar = $opsi?->is_correct ?? false;
+    public function updateWaktuSisa()
+    {
+        if (!$this->hasil->mulai_at) {
+            $this->waktuSisa = 0;
+            return;
+        }
 
-        JawabanPeserta::updateOrCreate(
-            ['hasil_ujian_id' => $this->hasilId, 'soal_id' => $this->soal->id],
-            ['opsi_id' => $opsiId, 'benar' => $benar]
+        $mulai = $this->hasil->mulai_at->timestamp;
+        $durasi = $this->hasil->sesiUjian->durasi_menit * 60;
+        $sekarang = now()->timestamp;
+
+        $this->waktuSisa = max(0, $mulai + $durasi - $sekarang);
+
+        // Auto finish when time is up
+        if ($this->waktuSisa <= 0 && !$this->hasil->selesai_at) {
+            $this->selesaiOtomatis();
+        }
+    }
+
+    public function pollTimer()
+    {
+        $this->updateWaktuSisa();
+    }
+
+    public function konfirmasiSelesai()
+    {
+        $terjawab = collect($this->jawabanStatus)->filter(fn($s) => $s == 'terjawab')->count();
+        $belum = $this->totalSoal - $terjawab;
+
+        $text = "Anda telah menjawab {$terjawab} dari {$this->totalSoal} soal.";
+
+        if ($belum > 0) {
+            $text .= " Masih ada {$belum} soal yang belum dijawab.";
+        }
+
+        $text .= " Yakin ingin menyelesaikan ujian?";
+
+        $this->alertConfirm(
+            'Selesaikan Ujian?',
+            $text,
+            'selesai'
         );
-    }
-
-    public function next()
-    {
-        return redirect()->route('peserta.ujian.soal', [
-            'hasil_id' => $this->hasilId,
-            'nomor' => $this->nomor + 1
-        ]);
-    }
-
-    public function prev()
-    {
-        return redirect()->route('peserta.ujian.soal', [
-            'hasil_id' => $this->hasilId,
-            'nomor' => $this->nomor - 1
-        ]);
     }
 
     public function selesai()
     {
+        // Prevent double submission
+        if ($this->hasil->selesai_at) {
+            return redirect()->route('peserta.ujian.selesai', $this->hasilId);
+        }
+
         $this->hitungSkor();
+
+        $this->alertSuccess('Ujian Selesai!', 'Terima kasih telah mengerjakan ujian.');
+
+        return redirect()->route('peserta.ujian.selesai', $this->hasilId);
+    }
+
+    public function selesaiOtomatis()
+    {
+        // Untuk waktu habis, langsung selesai tanpa konfirmasi
+        if ($this->hasil->selesai_at) {
+            return redirect()->route('peserta.ujian.selesai', $this->hasilId);
+        }
+
+        $this->hitungSkor();
+
+        $this->alertWarning('Waktu Habis!', 'Ujian otomatis diselesaikan karena waktu habis.');
+
         return redirect()->route('peserta.ujian.selesai', $this->hasilId);
     }
 
     public function hitungSkor()
     {
-        $benar = JawabanPeserta::where('hasil_ujian_id', $this->hasilId)->where('benar', true)->count();
+        // Count correct answers
+        $benar = JawabanPeserta::where('hasil_ujian_id', $this->hasilId)
+            ->where('benar', true)
+            ->count();
+
+        // Calculate score
         $skorPerSoal = $this->hasil->sesiUjian->soal->first()?->skor ?? 1;
         $totalSkor = $benar * $skorPerSoal;
 
+        // Update hasil
         $this->hasil->update([
             'selesai_at' => now(),
             'skor' => $totalSkor

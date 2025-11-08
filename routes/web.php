@@ -39,7 +39,7 @@ Route::name('peserta.')->middleware(['auth'])->group(
         Route::get('ujian/{sesi_id}/mulai', \App\Livewire\Peserta\PesertaUjianKerjakan::class)
             ->name('ujian.mulai');
         // KERJAKAN SOAL
-        Route::get('ujian/{hasil_id}/soal/{nomor}', \App\Livewire\Peserta\PesertaUjianSoal::class)
+        Route::get('ujian/{hasil_id}/soal', \App\Livewire\Peserta\PesertaUjianSoal::class)
             ->name('ujian.soal');
         Route::get('ujian/{hasil_id}/selesai', \App\Livewire\Peserta\PesertaUjianSelesai::class)
             ->name('ujian.selesai');

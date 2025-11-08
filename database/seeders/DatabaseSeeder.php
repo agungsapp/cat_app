@@ -29,6 +29,13 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('admin123'),
             'role' => 'admin'
         ]);
-        // $this->call(BankSoalSeeder::class);
+        User::create([
+            'name' => 'perserta',
+            'email' => 'peserta@gmail.com',
+            'password' => Hash::make('admin123'),
+            'role' => 'peserta'
+        ]);
+        $this->call(MasterSeeder::class);
+        $this->call(BankSoalSeeder::class);
     }
 }

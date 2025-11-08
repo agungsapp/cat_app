@@ -40,10 +40,14 @@
 
 <body class="g-sidenav-show bg-gray-100">
 		<div class="min-height-300 bg-dark position-absolute w-100"></div>
-		@include('layouts.partials.sidebar')
+		@if (!request()->routeIs('peserta.ujian.*') || request()->routeIs('peserta.ujian.index'))
+				@include('layouts.partials.sidebar')
+		@endif
 		<main class="main-content position-relative border-radius-lg">
 				<!-- Navbar -->
-				@include('layouts.partials.navbar')
+				@if (!request()->routeIs('peserta.ujian.*') || request()->routeIs('peserta.ujian.index'))
+						@include('layouts.partials.navbar')
+				@endif
 				<!-- End Navbar -->
 				<div style="min-height: 80vh;" class="container py-4">
 
