@@ -106,7 +106,10 @@
 												href="{{ route('peserta.riwayat-ujian.index') }}">
 												<div
 														class="icon icon-shape icon-sm border-radius-md d-flex align-items-center justify-content-center me-2 text-center">
-														<i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i>
+														{{-- <i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i> --}}
+														{{-- <i class="fa fa-clock-o" aria-hidden="true"></i> --}}
+														{{-- <i class='text-dark bx bx-time'></i> --}}
+														<i class='bx bx-clock-9 text-dark fs-5 text-sm' style="font-size: 30px; font-weight: bold"></i>
 												</div>
 												<span class="nav-link-text ms-1">Riwayat Ujian</span>
 										</a>

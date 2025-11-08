@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class TipeUjian extends Model
 {
-    protected $fillable = ['nama'];
+    protected $fillable = ['nama', 'slug', 'max_attempt'];
 
     protected static function boot()
     {

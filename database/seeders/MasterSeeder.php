@@ -22,9 +22,9 @@ class MasterSeeder extends Seeder
         ];
 
         $tipe = [
-            'Simulasi',
-            'Latihan',
-            'Tryout',
+            'Simulasi' => 3,
+            'Latihan' => null,
+            'Tryout' => 1,
         ];
 
         foreach ($jenis as $item) {
@@ -32,10 +32,11 @@ class MasterSeeder extends Seeder
                 'nama' => $item,
             ]);
         }
-        foreach ($tipe as $item) {
+        foreach ($tipe as $item => $max_attempt) {
             \App\Models\TipeUjian::create([
                 'nama' => $item,
                 'slug' => Str::slug($item),
+                'max_attempt' => $max_attempt,
             ]);
         }
     }

@@ -47,6 +47,7 @@
 																		<th style="width: 10%" class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">#
 																		</th>
 																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Nama Tipe Ujian</th>
+																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Maksimal Percobaan</th>
 																		<th style="width: 20%" class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Aksi
 																		</th>
 																</tr>
@@ -56,6 +57,7 @@
 																		<tr>
 																				<td>{{ $index + 1 }}</td>
 																				<td>{{ $item->nama }}</td>
+																				<td>{{ $item->max_attempt ?? 'unlimited' }}</td>
 																				<td>
 																						<button wire:click="edit({{ $item->id }})" class="btn btn-sm btn-info">
 																								<x-icon name="edit" />

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('slug')->unique();
+            $table->integer('max_attempt')->nullable();
             $table->timestamps();
         });
     }
