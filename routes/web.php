@@ -30,9 +30,11 @@ Route::prefix('admin/')->name('admin.')->middleware(['auth'])->group(function ()
     Route::get('/sesi-ujian/{id}/assign', \App\Livewire\Admin\SesiUjianAssignSoal::class)->name('sesi-ujian.assign');
 });
 
-Route::prefix('peserta/')->name('peserta.')->middleware(['auth'])->group(
+Route::name('peserta.')->middleware(['auth'])->group(
     function () {
         Route::get('dashboard', PesertaDashboardIndex::class)->name('dashboard.index');
+        Route::get('/ujian/{slug}', \App\Livewire\Peserta\PesertaUjianListIndex::class)
+            ->name('ujian.index');
     }
 );
 

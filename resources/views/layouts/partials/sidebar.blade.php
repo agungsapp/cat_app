@@ -86,6 +86,22 @@
 												<span class="nav-link-text ms-1">Dashboard</span>
 										</a>
 								</li>
+
+								<li class="nav-item mt-3">
+										<h6 class="text-uppercase font-weight-bolder opacity-6 ms-2 ps-4 text-xs">Mulai Ujian</h6>
+								</li>
+								@foreach (\App\Models\TipeUjian::all() as $tipe)
+										<li class="nav-item">
+												<a class="nav-link {{ Route::is('peserta.ujian.index') && request()->route('slug') == $tipe->slug ? 'active' : '' }}"
+														href="{{ route('peserta.ujian.index', $tipe->slug) }}">
+														<div class="icon icon-shape icon-sm border-radius-md d-flex align-items-center justify-content-center me-2">
+																<i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i>
+														</div>
+														<span class="nav-link-text ms-1">{{ $tipe->nama }}</span>
+												</a>
+										</li>
+								@endforeach
+
 						@endcan
 
 

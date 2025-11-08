@@ -29,5 +29,6 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('admin123'),
             'role' => 'admin'
         ]);
+        // $this->call(BankSoalSeeder::class);
     }
 }

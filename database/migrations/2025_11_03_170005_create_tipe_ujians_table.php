@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tipe_ujians', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
+            $table->string('slug')->unique();
             $table->timestamps();
         });
     }
