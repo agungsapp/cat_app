@@ -26,9 +26,9 @@
 																				</div>
 																		</div>
 																		<div>
-																				<button class="btn btn-success btn-sm" disabled>
-																						<i class="fas fa-play"></i> Mulai
-																				</button>
+																				<a href="{{ route('peserta.ujian.mulai', $item->id) }}" class="btn btn-success btn-sm">
+																						Mulai
+																				</a>
 																		</div>
 																</div>
 														</div>

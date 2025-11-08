@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('hasil_ujian_id')->constrained('hasil_ujians')->cascadeOnDelete();
             $table->foreignId('soal_id')->constrained('soals')->cascadeOnDelete();
-            $table->foreignId('opsi_id')->nullable()->constrained('soal_opsi');
+            $table->foreignId('opsi_id')->nullable()->constrained('soal_opsis');
             $table->boolean('benar')->default(false);
             $table->timestamps();
         });

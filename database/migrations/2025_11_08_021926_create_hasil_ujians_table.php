@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('hasil_ujians', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('sesi_ujian_id')->constrained('sesi_ujian')->cascadeOnDelete();
+            $table->foreignId('sesi_ujian_id')->constrained('sesi_ujians')->cascadeOnDelete();
             $table->dateTime('mulai_at');
             $table->dateTime('selesai_at')->nullable();
             $table->integer('skor')->nullable();
