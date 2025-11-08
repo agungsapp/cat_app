@@ -26,8 +26,9 @@ class PesertaUjianSelesai extends Component
 
         // Durasi digunakan
         $totalMenit = $this->hasil->mulai_at->diffInMinutes($this->hasil->selesai_at ?? now());
-        $durasiJamDesimal = $totalMenit / 60; // Ini yang menghasilkan 6.2666...
-        $this->durasiDigunakan = ceil($durasiJamDesimal);
+        // dd($totalMenit);
+        // $durasiJamDesimal = $totalMenit / 60; 
+        $this->durasiDigunakan = ceil($totalMenit);
     }
 
     public function hitungSkor()

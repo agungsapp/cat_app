@@ -101,7 +101,16 @@
 												</a>
 										</li>
 								@endforeach
-
+								<li class="nav-item">
+										<a class="nav-link {{ Route::is('peserta.riwayat-ujian.*') ? 'active' : '' }}"
+												href="{{ route('peserta.riwayat-ujian.index') }}">
+												<div
+														class="icon icon-shape icon-sm border-radius-md d-flex align-items-center justify-content-center me-2 text-center">
+														<i class="ni ni-single-copy-04 text-dark text-sm opacity-10"></i>
+												</div>
+												<span class="nav-link-text ms-1">Riwayat Ujian</span>
+										</a>
+								</li>
 						@endcan
 
 

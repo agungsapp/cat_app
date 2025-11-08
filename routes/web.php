@@ -43,6 +43,9 @@ Route::name('peserta.')->middleware(['auth'])->group(
             ->name('ujian.soal');
         Route::get('ujian/{hasil_id}/selesai', \App\Livewire\Peserta\PesertaUjianSelesai::class)
             ->name('ujian.selesai');
+        // routes/web.php → di group peserta
+        Route::get('/riwayat-ujian', \App\Livewire\Peserta\PesertaUjianRiwayat::class)
+            ->name('riwayat-ujian.index');
     }
 );
 
