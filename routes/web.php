@@ -56,9 +56,32 @@ Route::name('peserta.')->middleware(['auth'])->group(
         // routes/web.php → di group peserta
         Route::get('/riwayat-ujian', \App\Livewire\Peserta\PesertaUjianRiwayat::class)
             ->name('riwayat-ujian.index');
+
+        // MATERI PESERTA — GROUP RAPI
+        Route::prefix('materi')->name('materi.')->group(function () {
+            Route::get('/', \App\Livewire\Peserta\Materi\PesertaTopikIndex::class)
+                ->name('index');
+            Route::get('/{materi}', \App\Livewire\Peserta\Materi\PesertaMateriShow::class)
+                ->name('show');
+            Route::get('/{materi}/konten/{konten}', \App\Livewire\Peserta\Materi\PesertaKontenShow::class)
+                ->name('konten');
+            // lama
+            // Route::get('/topik/{topik}', \App\Livewire\Peserta\Materi\PesertaMateriShow::class)
+            //     ->name('topik');
+            // Route::get('/topik/{topik}/materi/{materi}', \App\Livewire\Peserta\Materi\PesertaSubmateriIndex::class)
+            //     ->name('materi');
+            // Route::get('/topik/{topik}/materi/{materi}/submateri/{submateri}', \App\Livewire\Peserta\Materi\PesertaKontenShow::class)
+            //     ->name('konten');
+        });
     }
 );
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/pdf/view/{konten}', [App\Http\Controllers\PdfViewController::class, 'show'])
+        ->name('pdf.view');
+    Route::get('/pdf/download/{konten}', [App\Http\Controllers\PdfViewController::class, 'download'])
+        ->name('pdf.download');
+});
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])
 //     ->name('dashboard');
