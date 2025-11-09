@@ -1,5 +1,15 @@
 <div>
 		<div class="container-fluid py-4">
+				<!-- Warning Badge (Pelanggaran) -->
+				@if ($pelanggaranCount > 0)
+						<div class="alert alert-warning alert-dismissible fade show position-fixed start-50 translate-middle-x top-0 mt-3"
+								style="z-index: 9999; min-width: 400px;" id="warning-badge">
+								<i class="fas fa-exclamation-triangle me-2"></i>
+								<strong>Peringatan!</strong> Anda telah meninggalkan halaman {{ $pelanggaranCount }} kali.
+								Sisa kesempatan: <strong>{{ $maxPelanggaran - $pelanggaranCount }}</strong>
+						</div>
+				@endif
+
 				<div class="row">
 						<!-- PANEL KIRI: SOAL -->
 						<div class="col-lg-8">
@@ -73,8 +83,7 @@
 																				Berikutnya <i class="fas fa-chevron-right ms-1"></i>
 																		</button>
 																@else
-																		<button wire:click="selesai" class="btn btn-success"
-																				onclick="return confirm('Anda yakin ingin menyelesaikan ujian?')">
+																		<button wire:click="konfirmasiSelesai" class="btn btn-success">
 																				<i class="fas fa-check me-1"></i> Selesai Ujian
 																		</button>
 																@endif
@@ -143,14 +152,6 @@
 						</div>
 				</div>
 		</div>
-		<!-- Loading Indicator -->
-		{{-- <div wire:loading class="position-fixed w-100 h-100 d-flex align-items-center justify-content-center start-0 top-0"
-				style="background: rgba(0,0,0,0.3); z-index: 9999;">
-				<div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-						<span class="visually-hidden">Loading...</span>
-				</div>
-		</div> --}}
-
 </div>
 
 @push('css')
@@ -196,26 +197,113 @@
 						font-family: 'Courier New', monospace;
 						letter-spacing: 2px;
 				}
+
+				/* Anti-Cheating Warning Animation */
+				@keyframes shake {
+
+						0%,
+						100% {
+								transform: translateX(0);
+						}
+
+						10%,
+						30%,
+						50%,
+						70%,
+						90% {
+								transform: translateX(-5px);
+						}
+
+						20%,
+						40%,
+						60%,
+						80% {
+								transform: translateX(5px);
+						}
+				}
+
+				.shake-animation {
+						animation: shake 0.5s;
+				}
 		</style>
 @endpush
 
 @push('js')
 		<script>
-				// Timer polling setiap detik
+				let isLeavingIntentionally = false;
+				let warningTimeout = null;
+
+				// ===== ANTI-CHEATING: Tab/Window Leave Detection =====
+				document.addEventListener('visibilitychange', function() {
+						// Hanya deteksi jika tab disembunyikan (user pindah tab)
+						if (document.hidden) {
+								// Panggil method Livewire untuk catat pelanggaran
+								@this.call('catatPelanggaran');
+						}
+				});
+
+				// Alternatif: Deteksi blur (kehilangan focus)
+				// Uncomment jika ingin lebih ketat (termasuk minimize window)
+				/*
+				window.addEventListener('blur', function() {
+				    @this.call('catatPelanggaran');
+				});
+				*/
+
+				// Listen untuk event warning dari Livewire
+				window.addEventListener('show-warning-pelanggaran', function(event) {
+						const data = event.detail[0];
+
+						// Tampilkan notifikasi menggunakan SweetAlert2 (jika ada)
+						if (typeof Swal !== 'undefined') {
+								Swal.fire({
+										icon: 'warning',
+										title: 'Peringatan!',
+										html: `
+                        <p>Anda telah meninggalkan halaman ujian <strong>${data.count} kali</strong>.</p>
+                        <p class="text-danger mb-0">Sisa kesempatan: <strong>${data.sisa} kali</strong></p>
+                        <p class="small text-muted mt-2">Jika meninggalkan halaman lagi, ujian akan otomatis diselesaikan.</p>
+                    `,
+										confirmButtonText: 'Saya Mengerti',
+										confirmButtonColor: '#dc3545',
+										allowOutsideClick: false
+								});
+						} else {
+								// Fallback: alert biasa
+								alert(
+										`PERINGATAN!\n\nAnda telah meninggalkan halaman ${data.count} kali.\nSisa kesempatan: ${data.sisa} kali.\n\nJika meninggalkan halaman lagi, ujian akan otomatis diselesaikan.`
+								);
+						}
+
+						// Shake animation untuk warning badge
+						const warningBadge = document.getElementById('warning-badge');
+						if (warningBadge) {
+								warningBadge.classList.add('shake-animation');
+								setTimeout(() => {
+										warningBadge.classList.remove('shake-animation');
+								}, 500);
+						}
+				});
+
+				// ===== TIMER POLLING =====
 				setInterval(() => {
 						@this.call('pollTimer');
 				}, 1000);
 
-				// Prevent accidental page leave
-				// Sekarang HANYA WARNING, TIDAK AUTO-SELESAI
+				// ===== PREVENT ACCIDENTAL PAGE LEAVE =====
 				window.addEventListener('beforeunload', function(e) {
 						if (!isLeavingIntentionally) {
 								e.preventDefault();
-								e.returnValue = 'Jawaban Anda sudah tersimpan.';
+								e.returnValue = 'Ujian sedang berlangsung. Yakin ingin meninggalkan halaman?';
 						}
 				});
 
-				// Keyboard navigation
+				// Set flag ketika user klik tombol selesai
+				window.addEventListener('livewire:navigating', function() {
+						isLeavingIntentionally = true;
+				});
+
+				// ===== KEYBOARD NAVIGATION =====
 				document.addEventListener('keydown', function(e) {
 						// Arrow Left = Previous
 						if (e.key === 'ArrowLeft' && {{ $nomor }} > 1) {
@@ -227,7 +315,7 @@
 								@this.call('pindahSoal', {{ $nomor }} + 1);
 						}
 
-						// Number keys 1-5 for options (if applicable)
+						// Number keys 1-5 for options
 						if (e.key >= '1' && e.key <= '5') {
 								const opsiElements = document.querySelectorAll('input[name="opsi_{{ $nomor }}"]');
 								const index = parseInt(e.key) - 1;
@@ -237,9 +325,8 @@
 						}
 				});
 
-				// Auto-save notification
+				// ===== AUTO-SAVE NOTIFICATION =====
 				window.addEventListener('jawaban-tersimpan', () => {
-						// Optional: Show brief success indicator
 						const savedIndicator = document.createElement('div');
 						savedIndicator.className = 'position-fixed top-0 end-0 m-3 alert alert-success alert-dismissible fade show';
 						savedIndicator.innerHTML = '<i class="fas fa-check-circle me-2"></i>Jawaban tersimpan';
@@ -250,5 +337,28 @@
 								savedIndicator.remove();
 						}, 2000);
 				});
+
+				// ===== DISABLE RIGHT-CLICK (Optional) =====
+				// Uncomment jika ingin disable klik kanan
+				/*
+				document.addEventListener('contextmenu', function(e) {
+				    e.preventDefault();
+				    return false;
+				});
+				*/
+
+				// ===== DISABLE COPY-PASTE (Optional) =====
+				// Uncomment jika ingin disable copy-paste
+				/*
+				document.addEventListener('copy', function(e) {
+				    e.preventDefault();
+				    return false;
+				});
+				
+				document.addEventListener('cut', function(e) {
+				    e.preventDefault();
+				    return false;
+				});
+				*/
 		</script>
 @endpush

@@ -88,7 +88,7 @@
 								</li>
 
 								<li class="nav-item mt-3">
-										<h6 class="text-uppercase font-weight-bolder opacity-6 ms-2 ps-4 text-xs">Mulai Ujian</h6>
+										<h6 class="text-uppercase font-weight-bolder opacity-6 ms-2 ps-4 text-xs">Ujian</h6>
 								</li>
 								@foreach (\App\Models\TipeUjian::all() as $tipe)
 										<li class="nav-item">
@@ -101,6 +101,9 @@
 												</a>
 										</li>
 								@endforeach
+								<li class="nav-item mt-3">
+										<h6 class="text-uppercase font-weight-bolder opacity-6 ms-2 ps-4 text-xs">Riwayat</h6>
+								</li>
 								<li class="nav-item">
 										<a class="nav-link {{ Route::is('peserta.riwayat-ujian.*') ? 'active' : '' }}"
 												href="{{ route('peserta.riwayat-ujian.index') }}">
@@ -117,7 +120,7 @@
 						@endcan
 
 
-						<li class="nav-item">
+						{{-- <li class="nav-item">
 								<a class="nav-link" href="../pages/profile.html">
 										<div
 												class="icon icon-shape icon-sm border-radius-md d-flex align-items-center justify-content-center me-2 text-center">
@@ -143,10 +146,10 @@
 										</div>
 										<span class="nav-link-text ms-1">Sign Up</span>
 								</a>
-						</li>
+						</li> --}}
 				</ul>
 		</div>
-		<div class="sidenav-footer mx-3">
+		{{-- <div class="sidenav-footer mx-3">
 				<div class="card card-plain shadow-none" id="sidenavCard">
 						<img class="w-50 mx-auto" src="{{ asset('argon') }}/img/illustrations/icon-documentation.svg"
 								alt="sidebar_illustration">
@@ -162,5 +165,5 @@
 				<a class="btn btn-primary btn-sm w-100 mb-0"
 						href="https://www.creative-tim.com/product/argon-dashboard-pro?ref=sidebarfree" type="button">Upgrade to
 						pro</a>
-		</div>
+		</div> --}}
 </aside>

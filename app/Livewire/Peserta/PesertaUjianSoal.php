@@ -21,6 +21,11 @@ class PesertaUjianSoal extends Component
     public $jawabanStatus = [];
     public $waktuSisa;
 
+    // Anti-Cheating Properties
+    public $pelanggaranCount = 0;
+    public $maxPelanggaran = 3; // Batas maksimal pelanggaran
+    public $warningShown = false;
+
     public function mount($hasil_id)
     {
         $this->hasilId = $hasil_id;
@@ -148,6 +153,46 @@ class PesertaUjianSoal extends Component
         $this->updateWaktuSisa();
     }
 
+    // Anti-Cheating: Catat pelanggaran
+    public function catatPelanggaran()
+    {
+        // Prevent if already finished
+        if ($this->hasil->selesai_at) {
+            return;
+        }
+
+        $this->pelanggaranCount++;
+
+        $sisaPelanggaran = $this->maxPelanggaran - $this->pelanggaranCount;
+
+        if ($this->pelanggaranCount >= $this->maxPelanggaran) {
+            // Batas tercapai → Auto selesai
+            $this->selesaiKarenaPelanggaran();
+        } else {
+            // Tampilkan peringatan
+            $this->dispatch('show-warning-pelanggaran', [
+                'count' => $this->pelanggaranCount,
+                'sisa' => $sisaPelanggaran
+            ]);
+        }
+    }
+
+    public function selesaiKarenaPelanggaran()
+    {
+        if ($this->hasil->selesai_at) {
+            return redirect()->route('peserta.ujian.selesai', $this->hasilId);
+        }
+
+        $this->hitungSkor();
+
+        $this->alertError(
+            'Ujian Dihentikan!',
+            'Ujian otomatis diselesaikan karena terlalu banyak meninggalkan halaman ujian.'
+        );
+
+        return redirect()->route('peserta.ujian.selesai', $this->hasilId);
+    }
+
     public function konfirmasiSelesai()
     {
         $terjawab = collect($this->jawabanStatus)->filter(fn($s) => $s == 'terjawab')->count();
@@ -200,22 +245,25 @@ class PesertaUjianSoal extends Component
     {
         $jawabanBenar = JawabanPeserta::where('hasil_ujian_id', $this->hasilId)
             ->where('benar', true)
-            ->with('soal') // pastikan relasi soal ada pada model
+            ->with('soal')
             ->get();
+
         $skorPeserta = $jawabanBenar->sum(function ($jawaban) {
             return $jawaban->soal->skor ?? 1;
         });
+
         $totalSkorMaks = $this->hasil->sesiUjian->soal->sum('skor');
         $nilai = 0;
+
         if ($totalSkorMaks > 0) {
             $nilai = ($skorPeserta / $totalSkorMaks) * 100;
         }
+
         $this->hasil->update([
             'selesai_at' => now(),
-            'skor' => round($nilai, 2) // kalau mau dibuletin jadi integer bisa ganti ke round($nilai)
+            'skor' => round($nilai, 2)
         ]);
     }
-
 
     public function render()
     {
