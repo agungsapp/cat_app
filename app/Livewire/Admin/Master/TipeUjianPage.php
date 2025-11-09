@@ -14,12 +14,14 @@ class TipeUjianPage extends Component
     protected string $paginationTheme = 'bootstrap';
 
     public $nama;
+    public $max_attempt = '';          // tambah property
     public $search = '';
     public $tipeUjianId;
     public $updateMode = false;
 
     protected $rules = [
-        'nama' => 'required|string|max:255',
+        'nama'        => 'required|string|max:255',
+        'max_attempt' => 'nullable|integer|min:1', // boleh kosong (unlimited) atau angka >=1
     ];
 
     public function updatedSearch()
@@ -38,7 +40,8 @@ class TipeUjianPage extends Component
 
     public function resetForm()
     {
-        $this->reset(['nama', 'tipeUjianId', 'updateMode']);
+        $this->reset(['nama', 'max_attempt', 'tipeUjianId', 'updateMode']);
+        $this->max_attempt = ''; // pastikan kosong
     }
 
     public function store()
@@ -46,20 +49,22 @@ class TipeUjianPage extends Component
         $this->validate();
 
         TipeUjian::create([
-            'nama' => $this->nama,
+            'nama'        => $this->nama,
+            'max_attempt' => $this->max_attempt ?: null,
         ]);
 
         $this->alertSuccess("Berhasil!", "Tipe ujian berhasil ditambahkan.");
-
         $this->resetForm();
     }
 
     public function edit($id)
     {
         $tipe = TipeUjian::findOrFail($id);
+
         $this->tipeUjianId = $tipe->id;
-        $this->nama = $tipe->nama;
-        $this->updateMode = true;
+        $this->nama        = $tipe->nama;
+        $this->max_attempt = $tipe->max_attempt; // isi field
+        $this->updateMode  = true;
     }
 
     public function update()
@@ -67,10 +72,13 @@ class TipeUjianPage extends Component
         $this->validate();
 
         $tipe = TipeUjian::findOrFail($this->tipeUjianId);
-        $tipe->update(['nama' => $this->nama]);
+
+        $tipe->update([
+            'nama'        => $this->nama,
+            'max_attempt' => $this->max_attempt ?: null,
+        ]);
 
         $this->alertSuccess("Berhasil!", "Tipe ujian berhasil diperbarui.");
-
         $this->resetForm();
     }
 
@@ -87,7 +95,7 @@ class TipeUjianPage extends Component
     public function deleteConfirmed($data)
     {
         $id = $data['id'] ?? null;
-        if (! $id) return;
+        if (!$id) return;
 
         TipeUjian::find($id)?->delete();
 

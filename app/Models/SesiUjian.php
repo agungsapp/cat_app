@@ -33,4 +33,9 @@ class SesiUjian extends Model
             ->withPivot('id')
             ->withTimestamps();
     }
+
+    public function hasilUjian()
+    {
+        return $this->hasMany(HasilUjian::class);
+    }
 }

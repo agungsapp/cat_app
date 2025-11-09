@@ -13,7 +13,7 @@ Route::get('/', function () {
     return redirect()->to('/admin/dashboard');
 });
 
-Route::prefix('admin/')->name('admin.')->middleware(['auth'])->group(function () {
+Route::prefix('admin/')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('dashboard', DashboardPage::class)->name('dashboard');
     Route::prefix('master/')->name('master.')->group(function () {
         Route::get('jenis-ujian', JenisUjianPage::class)->name('jenis-ujian');
