@@ -15,6 +15,7 @@ Route::get('/', function () {
 
 Route::prefix('admin/')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('dashboard', DashboardPage::class)->name('dashboard');
+    // data master
     Route::prefix('master/')->name('master.')->group(function () {
         Route::get('jenis-ujian', JenisUjianPage::class)->name('jenis-ujian');
         Route::get('tipe-ujian', TipeUjianPage::class)->name('tipe-ujian');
@@ -28,6 +29,15 @@ Route::prefix('admin/')->name('admin.')->middleware(['auth', 'role:admin'])->gro
     Route::get('/sesi-ujian/create', \App\Livewire\Admin\SesiUjianCreate::class)->name('sesi-ujian.create');
     Route::get('/sesi-ujian/{id}/edit', \App\Livewire\Admin\SesiUjianEdit::class)->name('sesi-ujian.edit');
     Route::get('/sesi-ujian/{id}/assign', \App\Livewire\Admin\SesiUjianAssignSoal::class)->name('sesi-ujian.assign');
+    // managemen materi
+    Route::prefix('materi/')->name('materi.')->group(function () {
+        Route::get('topik', \App\Livewire\Admin\Materi\TopikIndex::class)->name('topik.index');
+        Route::get('topik/{topik}/materi', \App\Livewire\Admin\Materi\MateriIndex::class)->name('materi.index');
+        Route::get('topik/{topik}/materi/{materi}/submateri', \App\Livewire\Admin\Materi\SubmateriIndex::class)
+            ->name('submateri.index');
+        Route::get('topik/{topik}/materi/{materi}/submateri/{submateri}/konten', \App\Livewire\Admin\Materi\KontenIndex::class)
+            ->name('konten.index');
+    });
 });
 
 Route::name('peserta.')->middleware(['auth'])->group(
