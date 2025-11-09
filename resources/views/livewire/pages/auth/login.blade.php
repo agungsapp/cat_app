@@ -14,7 +14,7 @@ new #[Layout('layouts.guest')] class extends Component {
         $this->form->authenticate();
         Session::regenerate();
 
-        $this->redirectIntended(route('admin.dashboard'), navigate: false);
+        Auth::user()->is_admin ? $this->redirectIntended(route('dashboard'), navigate: false) : $this->redirectIntended(route('admin.dashboard'), navigate: false);
     }
 };
 ?>
@@ -95,14 +95,15 @@ new #[Layout('layouts.guest')] class extends Component {
 												class="col-6 d-lg-flex d-none h-100 position-absolute justify-content-center flex-column end-0 top-0 my-auto pe-0 text-center">
 												<div
 														class="position-relative bg-gradient-primary h-100 border-radius-lg d-flex flex-column justify-content-center m-3 overflow-hidden px-7"
-														style="background-image: url('https://raw.githubusercontent.com/creativetimofficial/public-assets/master/argon-dashboard-pro/assets/img/signin-ill.jpg');
+														style="background-image: url('{{ asset('images/bg-logo.png') }}');
+														background-position: center;
                                    background-size: cover;">
 														<span class="mask bg-gradient-primary opacity-6"></span>
 														<h4 class="font-weight-bolder position-relative mt-5 text-white">
-																"Attention is the new currency"
+																"Tumbuh bersama kami!"
 														</h4>
 														<p class="position-relative text-white">
-																The more effortless the writing looks, the more effort the writer actually put into the process.
+																Raih cita cita menjadi ASN.
 														</p>
 												</div>
 										</div>

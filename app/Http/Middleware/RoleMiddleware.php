@@ -20,12 +20,14 @@ class RoleMiddleware
             abort(403);
         }
 
-        // role user
-        $userRole = Auth::user()->role;
+        $userRole = Auth::user()->role; // ini enum
 
-        // cek apakah role user ada di daftar role yang dibolehkan
-        if (!in_array($userRole, $roles)) {
-            abort(403, 'Tidak punya akses.');
+        // Ambil value dari enum (string)
+        $userRoleValue = $userRole->value; // atau $userRole->value()
+
+        // Cek apakah value enum ada di array $roles
+        if (!in_array($userRoleValue, $roles, true)) { // strict = true biar tipe data juga dicek
+            abort(403, "Akses ditolak. Role kamu: {$userRoleValue}");
         }
 
         return $next($request);

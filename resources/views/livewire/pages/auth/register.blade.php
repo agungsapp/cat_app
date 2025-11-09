@@ -28,7 +28,8 @@ new #[Layout('layouts.guest')] class extends Component {
 
         Auth::login($user);
 
-        $this->redirectIntended(route('admin.dashboard'), navigate: false);
+        Auth::user()->is_admin ? $this->redirectIntended(route('dashboard'), navigate: false) : $this->redirectIntended(route('admin.dashboard'), navigate: false);
+        // $this->redirectIntended(route('admin.dashboard'), navigate: false);
     }
 };
 ?>
