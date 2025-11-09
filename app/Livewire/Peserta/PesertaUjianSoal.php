@@ -197,21 +197,24 @@ class PesertaUjianSoal extends Component
 
     public function hitungSkor()
     {
-        // Count correct answers
-        $benar = JawabanPeserta::where('hasil_ujian_id', $this->hasilId)
+        $jawabanBenar = JawabanPeserta::where('hasil_ujian_id', $this->hasilId)
             ->where('benar', true)
-            ->count();
-
-        // Calculate score
-        $skorPerSoal = $this->hasil->sesiUjian->soal->first()?->skor ?? 1;
-        $totalSkor = $benar * $skorPerSoal;
-
-        // Update hasil
+            ->with('soal') // pastikan relasi soal ada pada model
+            ->get();
+        $skorPeserta = $jawabanBenar->sum(function ($jawaban) {
+            return $jawaban->soal->skor ?? 1;
+        });
+        $totalSkorMaks = $this->hasil->sesiUjian->soal->sum('skor');
+        $nilai = 0;
+        if ($totalSkorMaks > 0) {
+            $nilai = ($skorPeserta / $totalSkorMaks) * 100;
+        }
         $this->hasil->update([
             'selesai_at' => now(),
-            'skor' => $totalSkor
+            'skor' => round($nilai, 2) // kalau mau dibuletin jadi integer bisa ganti ke round($nilai)
         ]);
     }
+
 
     public function render()
     {
