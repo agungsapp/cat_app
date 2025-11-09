@@ -5,6 +5,7 @@ namespace App\Livewire\Peserta;
 use App\Models\HasilUjian;
 use App\Models\JawabanPeserta;
 use App\Traits\HasAlert;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class PesertaUjianSoal extends Component
@@ -27,7 +28,7 @@ class PesertaUjianSoal extends Component
             ->findOrFail($hasil_id);
 
         // Security check
-        if ($this->hasil->user_id !== auth()->id()) {
+        if ($this->hasil->user_id !== Auth::id()) {
             abort(403, 'Unauthorized');
         }
 

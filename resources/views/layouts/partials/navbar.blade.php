@@ -10,18 +10,22 @@
 				</nav>
 				<div class="navbar-collapse mt-sm-0 me-md-0 me-sm-4 collapse mt-2" id="navbar">
 						<div class="ms-md-auto pe-md-3 d-flex align-items-center">
-								<div class="input-group">
+								{{-- <div class="input-group">
 										<span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
 										<input type="text" class="form-control" placeholder="Type here...">
-								</div>
+								</div> --}}
 						</div>
 						<ul class="navbar-nav justify-content-end">
 								<li class="nav-item d-flex align-items-center">
-										<a href="javascript:;" class="nav-link font-weight-bold px-0 text-white">
-												<i class="fa fa-user me-sm-1"></i>
-												<span class="d-sm-inline d-none">Sign In</span>
-										</a>
+										<form method="POST" action="{{ route('logout') }}" class="d-flex align-items-center m-0 p-0">
+												@csrf
+												<button type="submit" class="nav-link font-weight-bold bg-primary rounded-3 border-0 px-4 text-white">
+														<i class="fa fa-sign-out me-sm-1"></i>
+														<span class="d-sm-inline d-none">Logout</span>
+												</button>
+										</form>
 								</li>
+
 								<li class="nav-item d-xl-none d-flex align-items-center ps-3">
 										<a href="javascript:;" class="nav-link p-0 text-white" id="iconNavbarSidenav">
 												<div class="sidenav-toggler-inner">

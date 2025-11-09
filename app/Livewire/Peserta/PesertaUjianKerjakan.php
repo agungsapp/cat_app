@@ -5,6 +5,7 @@ namespace App\Livewire\Peserta;
 use Livewire\Component;
 use App\Models\SesiUjian;
 use App\Models\HasilUjian;
+use Illuminate\Support\Facades\Auth;
 
 class PesertaUjianKerjakan extends Component
 {
@@ -19,7 +20,7 @@ class PesertaUjianKerjakan extends Component
         $this->sesi = SesiUjian::with('tipeUjian')->findOrFail($sesi_id);
 
         // Ambil semua attempt user
-        $this->attempts = HasilUjian::where('user_id', auth()->id())
+        $this->attempts = HasilUjian::where('user_id', Auth::id())
             ->where('sesi_ujian_id', $this->sesi->id)
             ->orderBy('id', 'desc')
             ->get();
@@ -112,7 +113,7 @@ class PesertaUjianKerjakan extends Component
 
         // Jika boleh mulai baru
         $baru = HasilUjian::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'sesi_ujian_id' => $this->sesi->id,
             'mulai_at' => now(),
         ]);
