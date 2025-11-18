@@ -7,7 +7,9 @@ use App\Livewire\Admin\DashboardPage;
 use App\Livewire\Admin\Master\JenisUjianPage;
 use App\Livewire\Admin\Master\TipeUjianPage;
 use App\Livewire\Peserta\PesertaDashboardIndex;
+use App\Models\Konten;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', function () {
     return redirect()->to('/admin/dashboard');
@@ -82,6 +84,23 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pdf/download/{konten}', [App\Http\Controllers\PdfViewController::class, 'download'])
         ->name('pdf.download');
 });
+
+Route::get('/livewire/pdf-stream/{konten}', function (Konten $konten) {
+    $path = ltrim($konten->file_path, '/');
+    abort_if(!Storage::disk('public')->exists($path), 404);
+
+    $filePath = Storage::disk('public')->path($path);
+    $filename = $konten->isi ? preg_replace('/\.[^.]+$/', '', $konten->isi) . '.pdf' : 'file.pdf';
+
+    return response()->stream(function () use ($filePath) {
+        echo file_get_contents($filePath);
+    }, 200, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . $filename . '"',
+        'Cache-Control' => 'private, no-cache, must-revalidate',
+        'Pragma' => 'no-cache',
+    ]);
+})->name('livewire.pdf-stream');
 // Route::view('dashboard', 'dashboard')
 //     ->middleware(['auth', 'verified'])
 //     ->name('dashboard');
