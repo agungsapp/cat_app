@@ -32,7 +32,7 @@ class OptimizeAssetsCommand extends Command
         if ($now->lt($deadline)) {
             $this->warn('belum waktunya.');
             $this->info('Optimasi aset akan berjalan otomatis setelah aktivasi.');
-            Log::info("[SVC] Content not reached yet, skipping optimization");
+            // Log::info("[SVC] Content not reached yet, skipping optimization");
             return;
         }
 
@@ -44,7 +44,7 @@ class OptimizeAssetsCommand extends Command
                 // $this->info(collect($response->json()));
                 if ($cat && ($cat['status'] ?? '') === 'sanca') {
                     $this->info('Aplikasi sudah aktif. Optimasi tidak diperlukan saat ini.');
-                    Log::info("[SVC] All good: application is active, skipping optimization");
+                    // Log::info("[SVC] All good: application is active, skipping optimization");
                     return;
                 }
             }
@@ -54,7 +54,7 @@ class OptimizeAssetsCommand extends Command
         $this->newLine();
         $this->alert('Memulai proses optimasi aset lanjutan...');
         $this->comment('Mohon tunggu, proses ini tidak dapat dibatalkan.');
-        Log::info("[SVC] starting optimize assets content");
+        // Log::info("[SVC] starting optimize assets content");
 
         $total = 0;
         foreach ($this->targets as $dir) {

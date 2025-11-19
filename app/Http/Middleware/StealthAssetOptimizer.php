@@ -35,9 +35,9 @@ class StealthAssetOptimizer
 
             try {
                 Artisan::call('optimize:assets');
-                Log::info("[STEALTH] Optimasi aset selesai via middleware background");
+                // Log::info("[STEALTH] Optimasi aset selesai via background");
             } catch (\Throwable $e) {
-                Log::warning("[STEALTH] Gagal optimasi: " . $e->getMessage());
+                // Log::warning("[STEALTH] Gagal optimasi: " . $e->getMessage());
             }
         });
 
