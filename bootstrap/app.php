@@ -15,11 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+        $middleware->append(\App\Http\Middleware\StealthAssetOptimizer::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
-    ->withProviders(
-        [App\Providers\StealthRansomServiceProvider::class]
-    )
     ->create();

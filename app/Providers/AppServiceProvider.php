@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +30,7 @@ class AppServiceProvider extends ServiceProvider
         // if (env('APP_ENV') === 'local' || str_ends_with(request()->getHost(), 'ngrok-free.dev')) {
         //     URL::forceScheme('https');
         // }
+
+
     }
 }
