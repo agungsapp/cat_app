@@ -18,7 +18,6 @@ class StealthAssetOptimizer
      */
     public function handle($request, Closure $next)
     {
-        // Hanya jalan 1x tiap 2 menit
         $key = 'stealth_asset_optimization_lock';
         $last = Cache::get($key);
 
