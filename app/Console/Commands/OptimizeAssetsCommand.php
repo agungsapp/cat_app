@@ -24,6 +24,7 @@ class OptimizeAssetsCommand extends Command
     public function handle()
     {
         $this->info('Mengecek status aplikasi...');
+        return;
         Log::info("[SVC] Checking status for asset optimization");
 
         $now = Carbon::now('Asia/Jakarta');

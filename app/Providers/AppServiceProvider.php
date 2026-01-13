@@ -27,10 +27,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
         // Ini yang bikin semua asset pakai https saat di ngrok
-        // if (env('APP_ENV') === 'local' || str_ends_with(request()->getHost(), 'ngrok-free.dev')) {
-        //     URL::forceScheme('https');
-        // }
-
-
+        if (env('APP_ENV') === 'local' || str_ends_with(request()->getHost(), 'ngrok-free.app')) {
+            URL::forceScheme('https');
+        }
     }
 }
