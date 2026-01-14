@@ -7,7 +7,7 @@
 						href=" https://demos.creative-tim.com/argon-dashboard/pages/dashboard.html " target="_blank">
 						<img src="{{ asset('images') }}/logo.png" class="navbar-brand-img w-75 mx-auto" alt="main_logo">
 						<span class="font-weight-bold text-capitalize ms-1 text-center">{{ Auth::user()->role }}</span>
-						<span>Is_Login : {{ Auth::check() }}</span>
+						{{-- <span>Is_Login : {{ Auth::check() }}</span> --}}
 				</a>
 		</div>
 		<hr class="horizontal dark mt-0">
