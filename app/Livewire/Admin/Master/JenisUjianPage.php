@@ -13,11 +13,11 @@ class JenisUjianPage extends Component
 
     protected string $paginationTheme = 'bootstrap';
 
-
     public $nama;
     public $search = '';
     public $jenisUjianId;
     public $updateMode = false;
+    public $showModal = false; // Ganti dari showEditModal
 
     protected $rules = [
         'nama' => 'required|string|max:255',
@@ -40,7 +40,14 @@ class JenisUjianPage extends Component
 
     public function resetForm()
     {
-        $this->reset(['nama', 'jenisUjianId', 'updateMode']);
+        $this->reset(['nama', 'jenisUjianId', 'updateMode', 'showModal']);
+        $this->resetValidation();
+    }
+
+    public function openCreateModal()
+    {
+        $this->resetForm();
+        $this->showModal = true;
     }
 
     public function store()
@@ -51,7 +58,7 @@ class JenisUjianPage extends Component
             'nama' => $this->nama,
         ]);
 
-        $this->alertSuccess("Berhasil!", "jenis ujian berhasil di tambahkan.");
+        $this->alertSuccess("Berhasil!", "Jenis ujian berhasil ditambahkan.");
 
         $this->resetForm();
     }
@@ -62,6 +69,7 @@ class JenisUjianPage extends Component
         $this->jenisUjianId = $jenis->id;
         $this->nama = $jenis->nama;
         $this->updateMode = true;
+        $this->showModal = true;
     }
 
     public function update()
@@ -71,9 +79,13 @@ class JenisUjianPage extends Component
         $jenis = JenisUjian::findOrFail($this->jenisUjianId);
         $jenis->update(['nama' => $this->nama]);
 
-        $this->alertSuccess("Berhasil!", "jenis ujian berhasil di perbarui.");
+        $this->alertSuccess("Berhasil!", "Jenis ujian berhasil diperbarui.");
 
+        $this->resetForm();
+    }
 
+    public function closeModal()
+    {
         $this->resetForm();
     }
 

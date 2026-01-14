@@ -1,0 +1,22 @@
+services:
+  catap:
+    build: .
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    ports:
+      - "8282:8000"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=https://78f3ee55d3c1.ngrok-free.app
+      - ASSET_URL=https://78f3ee55d3c1.ngrok-free.app
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/var/www/database/database.sqlite
+    networks:
+      - global-network
+
+networks:
+  global-network:
+    driver: bridge

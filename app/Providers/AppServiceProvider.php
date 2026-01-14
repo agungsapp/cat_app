@@ -5,6 +5,10 @@ namespace App\Providers;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,8 +27,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
         // Ini yang bikin semua asset pakai https saat di ngrok
-        if (env('APP_ENV') === 'local' || str_ends_with(request()->getHost(), 'ngrok-free.dev')) {
-            URL::forceScheme('https');
-        }
+        // if (env('APP_ENV') === 'local' || str_ends_with(request()->getHost(), 'ngrok-free.app')) {
+        //     URL::forceScheme('https');
+        // }
     }
 }
