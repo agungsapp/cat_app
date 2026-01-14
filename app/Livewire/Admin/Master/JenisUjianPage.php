@@ -13,11 +13,11 @@ class JenisUjianPage extends Component
 
     protected string $paginationTheme = 'bootstrap';
 
-
     public $nama;
     public $search = '';
     public $jenisUjianId;
     public $updateMode = false;
+    public $showEditModal = false; // Tambahkan property ini
 
     protected $rules = [
         'nama' => 'required|string|max:255',
@@ -40,7 +40,8 @@ class JenisUjianPage extends Component
 
     public function resetForm()
     {
-        $this->reset(['nama', 'jenisUjianId', 'updateMode']);
+        $this->reset(['nama', 'jenisUjianId', 'updateMode', 'showEditModal']);
+        $this->resetValidation();
     }
 
     public function store()
@@ -62,6 +63,7 @@ class JenisUjianPage extends Component
         $this->jenisUjianId = $jenis->id;
         $this->nama = $jenis->nama;
         $this->updateMode = true;
+        $this->showEditModal = true; // Buka modal
     }
 
     public function update()
@@ -73,7 +75,11 @@ class JenisUjianPage extends Component
 
         $this->alertSuccess("Berhasil!", "jenis ujian berhasil di perbarui.");
 
+        $this->resetForm();
+    }
 
+    public function closeModal()
+    {
         $this->resetForm();
     }
 

