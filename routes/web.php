@@ -9,12 +9,25 @@ use App\Livewire\Admin\Master\TipeUjianPage;
 use App\Livewire\Peserta\PesertaDashboardIndex;
 use App\Models\Konten;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
+// Route::get('/', function () {
+//     return redirect()->to('/admin/dashboard');
+// });
 Route::get('/', function () {
-    return redirect()->to('/admin/dashboard');
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+
+    $role = Auth::user()->role->value;
+
+    return redirect()->route(
+        $role === 'admin' ? 'admin.dashboard' : 'peserta.dashboard.index'
+    );
 });
+
 
 Route::prefix('admin/')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('dashboard', DashboardPage::class)->name('dashboard');
