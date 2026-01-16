@@ -32,9 +32,9 @@ class DashboardPage extends Component
         $this->totalPeserta = User::where('role', 'peserta')->count();
 
         // Ujian Aktif (sesi yang sedang berjalan)
-        $this->ujianAktif = SesiUjian::where('status', 'aktif')
-            ->where('mulai', '<=', now())
-            ->where('selesai', '>=', now())
+        $this->ujianAktif = SesiUjian::where('is_active', true)
+            ->where('waktu_mulai', '<=', now())
+            ->where('waktu_selesai', '>=', now())
             ->count();
 
         // Ujian Selesai Hari Ini

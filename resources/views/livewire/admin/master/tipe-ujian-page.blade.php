@@ -30,6 +30,9 @@
 																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">
 																				Maksimal Percobaan
 																		</th>
+																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">
+																				Mode
+																		</th>
 																		<th style="width: 20%" class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">
 																				Aksi
 																		</th>
@@ -47,6 +50,7 @@
 																								<span class="badge bg-secondary">Unlimited</span>
 																						@endif
 																				</td>
+																				<td>{{ $item->mode }}</td>
 																				<td>
 																						<button wire:click="edit({{ $item->id }})" class="btn btn-sm btn-info">
 																								<x-icon name="edit" />
@@ -110,6 +114,19 @@
 																		class="form-control @error('max_attempt') is-invalid @enderror" id="maxAttemptModal"
 																		placeholder="Contoh: 3" min="1">
 																@error('max_attempt')
+																		<small class="text-danger">{{ $message }}</small>
+																@enderror
+														</div>
+
+														<div class="mb-3">
+																<label for="modeModal" class="form-label">Mode</label>
+																<select wire:model="mode" class="@error('mode') is-invalid @enderror form-select" id="modeModal">
+																		<option value="">-- Pilih Mode --</option>
+																		<option value="random_all">Random All</option>
+																		<option value="random_by_jenis">Random By Jenis</option>
+																		<option value="fixed_rule">Fixed Rule</option>
+																</select>
+																@error('mode')
 																		<small class="text-danger">{{ $message }}</small>
 																@enderror
 														</div>

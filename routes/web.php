@@ -28,7 +28,7 @@ Route::get('/', function () {
     );
 });
 
-
+// ADMIN AREA
 Route::prefix('admin/')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('dashboard', DashboardPage::class)->name('dashboard');
     // data master
@@ -56,6 +56,7 @@ Route::prefix('admin/')->name('admin.')->middleware(['auth', 'role:admin'])->gro
     });
 });
 
+// PESERTA AREA
 Route::name('peserta.')->middleware(['auth'])->group(
     function () {
         Route::get('dashboard', PesertaDashboardIndex::class)->name('dashboard.index');

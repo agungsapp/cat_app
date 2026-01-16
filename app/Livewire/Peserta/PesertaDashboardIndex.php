@@ -29,9 +29,9 @@ class PesertaDashboardIndex extends Component
         $userId = Auth::id();
 
         // Ujian yang tersedia (aktif dan belum dikerjakan user ini)
-        $this->ujianTersedia = SesiUjian::where('status', 'aktif')
-            ->where('mulai', '<=', now())
-            ->where('selesai', '>=', now())
+        $this->ujianTersedia = SesiUjian::where('is_active', true)
+            ->where('waktu_mulai', '<=', now())
+            ->where('waktu_selesai', '>=', now())
             ->whereDoesntHave('hasilUjian', function ($q) use ($userId) {
                 $q->where('user_id', $userId);
             })
@@ -60,14 +60,14 @@ class PesertaDashboardIndex extends Component
         $userId = Auth::id();
 
         // Ambil ujian yang sedang aktif dan belum dikerjakan
-        $this->ujianAktif = SesiUjian::where('status', 'aktif')
-            ->where('mulai', '<=', now())
-            ->where('selesai', '>=', now())
+        $this->ujianAktif = SesiUjian::where('is_active', true)
+            ->where('waktu_mulai', '<=', now())
+            ->where('waktu_selesai', '>=', now())
             ->whereDoesntHave('hasilUjian', function ($q) use ($userId) {
                 $q->where('user_id', $userId);
             })
             ->withCount('soal')
-            ->latest('mulai')
+            ->latest('waktu_mulai')
             ->take(5)
             ->get();
     }

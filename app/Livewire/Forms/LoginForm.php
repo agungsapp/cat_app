@@ -13,10 +13,10 @@ use Livewire\Form;
 class LoginForm extends Form
 {
     #[Validate('required|string|email')]
-    public string $email = '';
+    public string $email = 'admin@gmail.com';
 
     #[Validate('required|string')]
-    public string $password = '';
+    public string $password = 'admin123';
 
     #[Validate('boolean')]
     public bool $remember = false;

@@ -15,6 +15,7 @@ class TipeUjianPage extends Component
 
     public $nama;
     public $max_attempt = '';
+    public $mode = '';
     public $search = '';
     public $tipeUjianId;
     public $updateMode = false;
@@ -41,9 +42,10 @@ class TipeUjianPage extends Component
 
     public function resetForm()
     {
-        $this->reset(['nama', 'max_attempt', 'tipeUjianId', 'updateMode', 'showModal']);
+        $this->reset(['nama', 'max_attempt', 'mode', 'tipeUjianId', 'updateMode', 'showModal']);
         $this->resetValidation();
         $this->max_attempt = '';
+        $this->mode = '';
     }
 
     public function openCreateModal()
@@ -59,6 +61,7 @@ class TipeUjianPage extends Component
         TipeUjian::create([
             'nama'        => $this->nama,
             'max_attempt' => $this->max_attempt ?: null,
+            'mode'        => $this->mode,
         ]);
 
         $this->alertSuccess("Berhasil!", "Tipe ujian berhasil ditambahkan.");
@@ -72,6 +75,7 @@ class TipeUjianPage extends Component
         $this->tipeUjianId = $tipe->id;
         $this->nama        = $tipe->nama;
         $this->max_attempt = $tipe->max_attempt;
+        $this->mode        = $tipe->mode;
         $this->updateMode  = true;
         $this->showModal   = true; // Buka modal
     }
@@ -85,6 +89,7 @@ class TipeUjianPage extends Component
         $tipe->update([
             'nama'        => $this->nama,
             'max_attempt' => $this->max_attempt ?: null,
+            'mode'        => $this->mode,
         ]);
 
         $this->alertSuccess("Berhasil!", "Tipe ujian berhasil diperbarui.");

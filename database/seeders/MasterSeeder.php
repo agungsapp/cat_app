@@ -27,17 +27,34 @@ class MasterSeeder extends Seeder
             'Tryout' => 1,
         ];
 
+        $tipes = [
+            [
+                'nama' => 'Simulasi',
+                'slug' => 'simulasi',
+                'max_attempt' => 3,
+                'mode' => 'random_all',
+            ],
+            [
+                'nama' => 'Latihan',
+                'slug' => 'latihan',
+                'max_attempt' => null,
+                'mode' => 'random_by_jenis',
+            ],
+            [
+                'nama' => 'Tryout',
+                'slug' => 'tryout',
+                'max_attempt' => 1,
+                'mode' => 'fixed_rule',
+            ],
+        ];
+
         foreach ($jenis as $item) {
             \App\Models\JenisUjian::create([
                 'nama' => $item,
             ]);
         }
-        foreach ($tipe as $item => $max_attempt) {
-            \App\Models\TipeUjian::create([
-                'nama' => $item,
-                'slug' => Str::slug($item),
-                'max_attempt' => $max_attempt,
-            ]);
+        foreach ($tipes as $tipe) {
+            \App\Models\TipeUjian::create($tipe);
         }
     }
 }
