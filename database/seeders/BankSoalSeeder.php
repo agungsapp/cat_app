@@ -12,19 +12,41 @@ class BankSoalSeeder extends Seeder
 {
     public function run()
     {
-        // Pastikan ada Jenis Ujian
-
         Soal::factory(10)->create()->each(function ($soal) {
-            $opsiCount = rand(4, 6);
-            $correctIndex = rand(0, $opsiCount - 1);
+            $jenis = $soal->jenis;
 
-            SoalOpsi::factory($opsiCount)->create([
-                'soal_id' => $soal->id,
-            ])->each(function ($opsi, $key) use ($correctIndex) {
-                if ($key === $correctIndex) {
-                    $opsi->update(['is_correct' => true]);
+            // === TWK / TIU ===
+            if ($jenis->tipe_penilaian === 'benar_salah') {
+                $labels = ['A', 'B', 'C', 'D', 'E'];
+                $correctIndex = rand(0, 4);
+
+                foreach ($labels as $i => $label) {
+                    SoalOpsi::create([
+                        'soal_id' => $soal->id,
+                        'label' => $label,
+                        'teks' => fake()->sentence(),
+                        'is_correct' => $i === $correctIndex,
+                        'skor' => null,
+                    ]);
                 }
-            });
+            }
+
+            // === TKP ===
+            if ($jenis->tipe_penilaian === 'bobot_opsi') {
+                $labels = ['A', 'B', 'C', 'D', 'E'];
+                $scores = [1, 2, 3, 4, 5];
+                shuffle($scores);
+
+                foreach ($labels as $i => $label) {
+                    SoalOpsi::create([
+                        'soal_id' => $soal->id,
+                        'label' => $label,
+                        'teks' => fake()->sentence(),
+                        'is_correct' => false,
+                        'skor' => $scores[$i],
+                    ]);
+                }
+            }
         });
     }
 }

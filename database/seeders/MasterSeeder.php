@@ -13,18 +13,39 @@ class MasterSeeder extends Seeder
      */
     public function run(): void
     {
-        $jenis = [
-            "TWK (Tes Wawasan Kebangsaan)",
-            "TIU (Tes Intelegensi Umum)",
-            "TKP (Tes Karakteristik Pribadi)",
-            "SKD (Soal Kompetensi Dasar)",
-            "SKB (Soal Kompetensi Bidang)",
-        ];
+        // $jenis = [
+        //     "TWK (Tes Wawasan Kebangsaan)",
+        //     "TIU (Tes Intelegensi Umum)",
+        //     "TKP (Tes Karakteristik Pribadi)",
+        //     "SKD (Soal Kompetensi Dasar)",
+        //     "SKB (Soal Kompetensi Bidang)",
+        // ];
 
-        $tipe = [
-            'Simulasi' => 3,
-            'Latihan' => null,
-            'Tryout' => 1,
+        $jenis = [
+            [
+                'nama' => 'Tes Wawasan Kebangsaan',
+                'tipe_penilaian' => 'benar_salah',
+                'bobot_per_soal' => 5,
+            ],
+            [
+                'nama' => 'Tes Intelegensi Umum',
+                'tipe_penilaian' => 'benar_salah',
+                'bobot_per_soal' => 5,
+            ],
+            [
+                'nama' => 'Tes Karakteristik Pribadi',
+                'tipe_penilaian' => 'bobot_opsi',
+            ],
+            [
+                'nama' => 'Soal Kompetensi Dasar',
+                'tipe_penilaian' => 'benar_salah',
+                'bobot_per_soal' => 5,
+            ],
+            [
+                'nama' => 'Soal Kompetensi Bidang',
+                'tipe_penilaian' => 'benar_salah',
+                'bobot_per_soal' => 5,
+            ],
         ];
 
         $tipes = [
@@ -50,7 +71,10 @@ class MasterSeeder extends Seeder
 
         foreach ($jenis as $item) {
             \App\Models\JenisUjian::create([
-                'nama' => $item,
+                'kode' => \App\Models\JenisUjian::generateInitials($item['nama']),
+                'nama' => $item['nama'],
+                'tipe_penilaian' => $item['tipe_penilaian'],
+                'bobot_per_soal' => $item['bobot_per_soal'] ?? null,
             ]);
         }
         foreach ($tipes as $tipe) {

@@ -24,7 +24,13 @@
 																				#
 																		</th>
 																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">
+																				Kode
+																		</th>
+																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">
 																				Nama Jenis Ujian
+																		</th>
+																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">
+																				Tipe Penilaian
 																		</th>
 																		<th style="width: 20%" class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">
 																				Aksi
@@ -35,7 +41,9 @@
 																@forelse ($listJenisUjian as $index => $item)
 																		<tr>
 																				<td>{{ $listJenisUjian->firstItem() + $index }}</td>
+																				<td>{{ $item->kode }}</td>
 																				<td>{{ $item->nama }}</td>
+																				<td>{{ $item->tipe_penilaian }}</td>
 																				<td>
 																						<button wire:click="edit({{ $item->id }})" class="btn btn-sm btn-info">
 																								<x-icon name="edit" />
@@ -88,6 +96,19 @@
 																		<small class="text-danger">{{ $message }}</small>
 																@enderror
 														</div>
+														<div class="mb-3">
+																<label for="tipePenilaianModal" class="form-label">Tipe Penilaian</label>
+																<select wire:model="tipe_penilaian" class="form-control @error('tipe_penilaian') is-invalid @enderror"
+																		id="tipePenilaianModal">
+																		<option value="">Pilih Tipe Penilaian</option>
+																		<option value="benar_salah">Benar Salah</option>
+																		<option value="bobot_opsi">Bobot Opsi</option>
+																</select>
+																@error('tipe_penilaian')
+																		<small class="text-danger">{{ $message }}</small>
+																@enderror
+														</div>
+
 												</div>
 												<div class="modal-footer">
 														<button type="button" class="btn btn-secondary" wire:click="closeModal">

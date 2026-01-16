@@ -13,6 +13,7 @@ class SesiUjianCreate extends Component
     public $judul, $deskripsi, $tipe_ujian_id, $durasi_menit = 90;
     public $is_active = true;
     public $waktu_mulai, $waktu_selesai;
+    public $mode = '';
 
     protected $rules = [
         'judul' => 'required|string|max:255',
@@ -44,6 +45,16 @@ class SesiUjianCreate extends Component
     public function render()
     {
         $tipeUjian = \App\Models\TipeUjian::all();
-        return view('livewire.admin.sesi-ujian-create', compact('tipeUjian'));
+        $jenisUjian = \App\Models\JenisUjian::all();
+        return view('livewire.admin.sesi-ujian-create', compact(['tipeUjian', 'jenisUjian']));
+    }
+
+    public function updatedTipeUjianId($value)
+    {
+        $tipeUjian = \App\Models\TipeUjian::find($value);
+
+        $this->mode = $tipeUjian?->getRawOriginal('mode');
+
+        // dd($this->mode);
     }
 }

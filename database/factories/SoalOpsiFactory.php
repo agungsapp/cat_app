@@ -15,12 +15,13 @@ class SoalOpsiFactory extends Factory
     public function definition()
     {
         return [
-            'soal_id' => null, // diisi via relationship
-            'label' => $this->faker->randomElement(['A', 'B', 'C', 'D', 'E', 'F']),
+            'soal_id' => null,
+            'label' => $this->faker->randomElement(['A', 'B', 'C', 'D', 'E']),
             'teks' => $this->faker->sentence(),
             'media_type' => 'none',
             'media_path' => null,
             'is_correct' => false,
+            'skor' => null,
         ];
     }
 }
