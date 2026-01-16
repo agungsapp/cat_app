@@ -19,7 +19,8 @@ class BankSoalCreate extends Component
     public $pertanyaan_text;
     public $media_type = 'none';
     public $media_file;
-    public $skor = 1;
+    // public $skor = 1;
+    public $tipe_penilaian; // cache dari jenis ujian
     public $opsi = [];
     public $correctAnswerIndex = null;
 
@@ -28,7 +29,7 @@ class BankSoalCreate extends Component
         'pertanyaan_text' => 'nullable|string',
         'media_type' => 'required|in:none,image,audio',
         'media_file' => 'nullable|file|max:10240', // 10MB
-        'skor' => 'required|integer|min:1',
+        // 'skor' => 'required|integer|min:1',
         'opsi' => 'required|array|min:2',
         // 'opsi.*.teks' => 'required_if:opsi.*.media_type,none|string',
         // 'opsi.*.media_file' => 'required_if:opsi.*.media_type,image,audio|file|max:10240',
@@ -43,13 +44,13 @@ class BankSoalCreate extends Component
     public function resetOpsi()
     {
         $this->opsi = [
-            ['label' => 'A', 'teks' => '', 'media_type' => 'none', 'media_file' => null, 'is_correct' => false],
-            ['label' => 'B', 'teks' => '', 'media_type' => 'none', 'media_file' => null, 'is_correct' => false],
-            ['label' => 'C', 'teks' => '', 'media_type' => 'none', 'media_file' => null, 'is_correct' => false],
-            ['label' => 'D', 'teks' => '', 'media_type' => 'none', 'media_file' => null, 'is_correct' => false],
+            ['label' => 'A', 'teks' => '', 'media_type' => 'none', 'media_file' => null, 'is_correct' => false, 'skor' => null],
+            ['label' => 'B', 'teks' => '', 'media_type' => 'none', 'media_file' => null, 'is_correct' => false, 'skor' => null],
+            ['label' => 'C', 'teks' => '', 'media_type' => 'none', 'media_file' => null, 'is_correct' => false, 'skor' => null],
+            ['label' => 'D', 'teks' => '', 'media_type' => 'none', 'media_file' => null, 'is_correct' => false, 'skor' => null],
         ];
-        $this->correctAnswerIndex = null;
     }
+
 
     public function addOpsi()
     {
@@ -64,7 +65,8 @@ class BankSoalCreate extends Component
             'teks' => '',
             'media_type' => 'none',
             'media_file' => null,
-            'is_correct' => false
+            'is_correct' => false,
+            'skor' => null,
         ];
     }
 
@@ -97,6 +99,21 @@ class BankSoalCreate extends Component
         }
     }
 
+    public function updatedJenisId($value)
+    {
+        $jenis = JenisUjian::find($value);
+        $this->tipe_penilaian = $jenis?->tipe_penilaian;
+
+        // reset logic sesuai tipe
+        foreach ($this->opsi as $i => $opsi) {
+            $this->opsi[$i]['is_correct'] = false;
+            $this->opsi[$i]['skor'] = null;
+        }
+
+        $this->correctAnswerIndex = null;
+    }
+
+
     public function save()
     {
         $this->validate();
@@ -113,11 +130,24 @@ class BankSoalCreate extends Component
             }
         }
 
-        $hasCorrect = collect($this->opsi)->contains('is_correct', true);
-        if (!$hasCorrect) {
-            $this->addError('correctAnswerIndex', 'Pilih minimal 1 jawaban yang benar!');
-            return;
+        $jenis = JenisUjian::findOrFail($this->jenis_id);
+
+        if ($jenis->tipe_penilaian === 'benar_salah') {
+            if (!collect($this->opsi)->contains('is_correct', true)) {
+                $this->addError('correctAnswerIndex', 'Pilih satu jawaban benar.');
+                return;
+            }
         }
+
+        if ($jenis->tipe_penilaian === 'bobot_opsi') {
+            foreach ($this->opsi as $i => $opsi) {
+                if (!isset($opsi['skor']) || $opsi['skor'] < 1 || $opsi['skor'] > 5) {
+                    $this->addError("opsi.$i.skor", 'Skor wajib 1–5 untuk TKP.');
+                    return;
+                }
+            }
+        }
+
 
         try {
             // Upload media soal
@@ -132,7 +162,7 @@ class BankSoalCreate extends Component
                 'pertanyaan_text' => $this->pertanyaan_text,
                 'media_type' => $this->media_type,
                 'media_path' => $mediaPath,
-                'skor' => $this->skor,
+                // 'skor' => $this->skor,
             ]);
 
             // Simpan opsi
@@ -148,7 +178,12 @@ class BankSoalCreate extends Component
                     'teks' => $item['teks'] ?? '',
                     'media_type' => $item['media_type'],
                     'media_path' => $opsiMediaPath,
-                    'is_correct' => $item['is_correct'],
+                    'is_correct' => $jenis->tipe_penilaian === 'benar_salah'
+                        ? $item['is_correct']
+                        : false,
+                    'skor' => $jenis->tipe_penilaian === 'bobot_opsi'
+                        ? $item['skor']
+                        : null,
                 ]);
             }
 

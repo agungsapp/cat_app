@@ -19,7 +19,8 @@ class BankSoalEdit extends Component
     public $pertanyaan_text;
     public $media_type = 'none';
     public $media_file;
-    public $skor = 1;
+    // public $skor = 1;
+    public $tipe_penilaian;
     public $opsi = [];
     public $correctAnswerIndex = null;
 
@@ -30,7 +31,7 @@ class BankSoalEdit extends Component
         'pertanyaan_text' => 'nullable|string',
         'media_type' => 'required|in:none,image,audio',
         'media_file' => 'nullable|file|max:10240',
-        'skor' => 'required|integer|min:1',
+        // 'skor' => 'required|integer|min:1',
         'opsi' => 'required|array|min:2',
         'opsi.*.media_type' => 'required|in:none,image,audio',
     ];
@@ -43,13 +44,14 @@ class BankSoalEdit extends Component
 
     public function loadSoal()
     {
-        $soal = Soal::with('opsi')->findOrFail($this->soalId);
+        $soal = Soal::with('opsi', 'jenis')->findOrFail($this->soalId);
 
         $this->jenis_id = $soal->jenis_id;
         $this->pertanyaan_text = $soal->pertanyaan_text;
         $this->media_type = $soal->media_type;
         $this->oldMediaPath = $soal->media_path;
-        $this->skor = $soal->skor;
+        $this->tipe_penilaian = $soal->jenis->tipe_penilaian;
+        // $this->skor = $soal->skor;
 
         $this->opsi = [];
         $this->correctAnswerIndex = null;
@@ -66,6 +68,7 @@ class BankSoalEdit extends Component
                 'media_path' => $item->media_path,
                 'media_file' => null,
                 'is_correct' => $item->is_correct,
+                'skor' => $item->skor, // 🔥 WAJIB
             ];
         }
     }
@@ -83,7 +86,8 @@ class BankSoalEdit extends Component
             'teks' => '',
             'media_type' => 'none',
             'media_file' => null,
-            'is_correct' => false
+            'is_correct' => false,
+            'skor' => null,
         ];
     }
 
@@ -121,6 +125,21 @@ class BankSoalEdit extends Component
         }
     }
 
+    public function updatedJenisId($value)
+    {
+        $jenis = JenisUjian::find($value);
+        $this->tipe_penilaian = $jenis?->tipe_penilaian;
+
+        // reset logic sesuai tipe
+        foreach ($this->opsi as $i => $opsi) {
+            $this->opsi[$i]['is_correct'] = false;
+            $this->opsi[$i]['skor'] = null;
+        }
+
+        $this->correctAnswerIndex = null;
+    }
+
+
     public function save()
     {
         $this->validate();
@@ -137,11 +156,24 @@ class BankSoalEdit extends Component
             }
         }
 
-        $hasCorrect = collect($this->opsi)->contains('is_correct', true);
-        if (!$hasCorrect) {
-            $this->addError('correctAnswerIndex', 'Pilih minimal 1 jawaban benar!');
-            return;
+        $jenis = JenisUjian::findOrFail($this->jenis_id);
+
+        if ($jenis->tipe_penilaian === 'benar_salah') {
+            if (!collect($this->opsi)->contains('is_correct', true)) {
+                $this->addError('correctAnswerIndex', 'Pilih satu jawaban benar!');
+                return;
+            }
         }
+
+        if ($jenis->tipe_penilaian === 'bobot_opsi') {
+            foreach ($this->opsi as $i => $opsi) {
+                if (!isset($opsi['skor']) || $opsi['skor'] < 1 || $opsi['skor'] > 5) {
+                    $this->addError("opsi.$i.skor", 'Skor wajib 1–5.');
+                    return;
+                }
+            }
+        }
+
 
         try {
             $soal = Soal::findOrFail($this->soalId);
@@ -168,7 +200,7 @@ class BankSoalEdit extends Component
                 'pertanyaan_text' => $this->pertanyaan_text,
                 'media_type' => $this->media_type,
                 'media_path' => $mediaPath,
-                'skor' => $this->skor,
+                // 'skor' => $this->skor,
             ]);
 
             // Hapus semua opsi lama
@@ -192,7 +224,12 @@ class BankSoalEdit extends Component
                     'teks' => $item['teks'] ?? '',
                     'media_type' => $item['media_type'],
                     'media_path' => $opsiMediaPath,
-                    'is_correct' => $item['is_correct'],
+                    'is_correct' => $jenis->tipe_penilaian === 'benar_salah'
+                        ? $item['is_correct']
+                        : false,
+                    'skor' => $jenis->tipe_penilaian === 'bobot_opsi'
+                        ? $item['skor']
+                        : null,
                 ]);
             }
 
