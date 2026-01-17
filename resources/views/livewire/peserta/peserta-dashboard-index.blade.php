@@ -151,7 +151,7 @@
 																								</span>
 																								<span>
 																										<i class="fas fa-calendar text-info me-1"></i>
-																										Sampai {{ $sesi->selesai->format('d M Y H:i') }}
+																										Sampai {{ $sesi->waktu_selesai->format('d M Y H:i') }}
 																								</span>
 																						</div>
 																				</div>
@@ -266,8 +266,8 @@
 				<div class="row">
 						<div class="col-12">
 								<div class="alert alert-info alert-dismissible fade show" role="alert">
-										<span class="alert-icon"><i class="ni ni-bell-55"></i></span>
-										<span class="alert-text">
+										<span class="alert-icon text-white"><i class="ni ni-bell-55"></i></span>
+										<span class="alert-text text-white">
 												<strong>Info:</strong> Ada {{ $ujianTersedia }} ujian yang dapat Anda kerjakan saat ini.
 												Pastikan Anda membaca petunjuk sebelum memulai ujian.
 										</span>

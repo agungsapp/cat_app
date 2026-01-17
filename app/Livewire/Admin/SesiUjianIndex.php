@@ -16,6 +16,8 @@ class SesiUjianIndex extends Component
 
     protected $paginationTheme = 'bootstrap';
 
+
+
     public function updatingSearch()
     {
         $this->resetPage();
@@ -38,7 +40,7 @@ class SesiUjianIndex extends Component
 
     public function render()
     {
-        $sesi = SesiUjian::with('tipeUjian')
+        $sesi = SesiUjian::with('tipeUjian', 'hasilUjian')
             ->when($this->search, fn($q) => $q->where('judul', 'like', "%{$this->search}%"))
             ->when($this->filterTipe, fn($q) => $q->where('tipe_ujian_id', $this->filterTipe))
             ->latest()

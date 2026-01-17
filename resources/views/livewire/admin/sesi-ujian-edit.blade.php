@@ -173,3 +173,15 @@
 				</div>
 		</div>
 </div>
+@push('js')
+		<script>
+				document.addEventListener('livewire:init', () => {
+						Livewire.on('redirect-after-delay', () => {
+								setTimeout(() => {
+										window.location.href = "{{ route('admin.sesi-ujian.index') }}";
+								}, 5000);
+								// alert("sudah di picu");
+						});
+				});
+		</script>
+@endpush

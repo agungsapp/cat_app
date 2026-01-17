@@ -38,7 +38,23 @@ class SesiUjianEdit extends Component
     {
         $this->sesiId = $id;
         $this->loadSesi();
+        $this->checkEditable();
     }
+
+    public function checkEditable()
+    {
+        $sesi = SesiUjian::findOrFail($this->sesiId);
+
+        if ($sesi->hasilUjian()->exists()) {
+            $this->alertError(
+                'Peringatan Tidak Bisa Diedit',
+                'Sesi ujian ini sudah dikerjakan peserta. Pengeditan tidak diperbolehkan.'
+            );
+
+            $this->dispatch('redirect-after-delay');
+        }
+    }
+
 
     public function loadSesi()
     {
@@ -79,21 +95,23 @@ class SesiUjianEdit extends Component
     private function loadRandomByJenisData(SesiUjian $sesi)
     {
         // Ambil soal pertama untuk tahu jenis apa yang dipakai
-        $firstSoal = $sesi->soal()->with('soal.jenisUjian')->first();
+        $firstSoal = $sesi->soal()->with('jenis')->first();
 
         if ($firstSoal) {
-            $this->jenis_ujian_id = $firstSoal->soal->jenis_id;
+            $this->jenis_ujian_id = $firstSoal->jenis_id;
             $this->jumlah_soal = $sesi->soal()->count();
         }
     }
 
     private function loadFixedRuleData(SesiUjian $sesi)
     {
+        // dd($sesi->soal());
+
         // Group soal per jenis
         $soalsByJenis = $sesi->soal()
-            ->with('soal.jenisUjian')
+            ->with('jenis')
             ->get()
-            ->groupBy('soal.jenis_id');
+            ->groupBy('jenis_id');
 
         $this->komposisi = $soalsByJenis->map(function ($soals, $jenisId) {
             return [

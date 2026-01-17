@@ -24,17 +24,26 @@
 
 		<div class="row">
 				@forelse($sesi as $s)
-						<div class="col-md-6 mb-3">
+						<div class="col-md-4 col-sm-6 col-12 mb-3">
 								<div class="card h-100">
 										<div class="card-body">
 												<h5>{{ $s->judul }}</h5>
+
 												<p class="text-muted small">{{ $s->tipeUjian->nama }} • {{ $s->durasi_menit }} menit</p>
 												@if ($s->waktu_mulai)
 														<p class="small">Mulai: {{ $s->waktu_mulai->format('d/m/Y H:i') }}</p>
 												@endif
 												<div class="mt-3">
-														<a href="{{ route('admin.sesi-ujian.edit', $s->id) }}" class="btn btn-sm btn-warning">Edit</a>
-														<a href="{{ route('admin.sesi-ujian.assign', $s->id) }}" class="btn btn-sm btn-info">Pilih Soal</a>
+														@if ($s->hasilUjian()->exists())
+																<div title="edit tidak di ijinkan" style="display: inline-block;">
+																		<button disabled="disabled" class="btn btn-secondary btn-sm" style="pointer-events: none;">
+																				Edit
+																		</button>
+																</div>
+														@else
+																<a href="{{ route('admin.sesi-ujian.edit', $s->id) }}" class="btn btn-sm btn-warning">Edit</a>
+														@endif
+														{{-- <a href="{{ route('admin.sesi-ujian.assign', $s->id) }}" class="btn btn-sm btn-info">Pilih Soal</a> --}}
 														<button wire:click="delete({{ $s->id }})" class="btn btn-sm btn-danger">Hapus</button>
 												</div>
 										</div>
