@@ -12,7 +12,7 @@ class BankSoalSeeder extends Seeder
 {
     public function run()
     {
-        Soal::factory(10)->create()->each(function ($soal) {
+        Soal::factory(100)->create()->each(function ($soal) {
             $jenis = $soal->jenis;
 
             // === TWK / TIU ===

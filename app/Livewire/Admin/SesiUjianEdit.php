@@ -267,6 +267,7 @@ class SesiUjianEdit extends Component
                 ->inRandomOrder()
                 ->limit($rule['jumlah_soal'])
                 ->pluck('id');
+            // dd($soals);
 
             if ($soals->count() < $rule['jumlah_soal']) {
                 $jenisNama = \App\Models\JenisUjian::find($rule['jenis_ujian_id'])->nama;
