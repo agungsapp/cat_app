@@ -53,7 +53,7 @@ class MasterSeeder extends Seeder
                 'nama' => 'Simulasi',
                 'slug' => 'simulasi',
                 'max_attempt' => 3,
-                'mode' => 'random_all',
+                'mode' => 'fixed_rule',
             ],
             [
                 'nama' => 'Latihan',
@@ -65,7 +65,7 @@ class MasterSeeder extends Seeder
                 'nama' => 'Tryout',
                 'slug' => 'tryout',
                 'max_attempt' => 1,
-                'mode' => 'fixed_rule',
+                'mode' => 'random_all',
             ],
         ];
 

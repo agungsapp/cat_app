@@ -68,55 +68,80 @@
 												</div>
 
 
-												@if ($mode == 'random_by_jenis')
+												@if ($mode == 'fixed_rule')
 														<div class="card mb-4">
 																<div class="card-body">
-																		{{-- row komposisi soal --}}
-																		<div class="row">
-																				<div class="col-5 mb-3">
-																						<label>Jenis Soal <span class="text-danger">*</span></label>
-																						<select wire:model="jenis_ujian_id"
-																								class="@error('jenis_ujian_id') is-invalid @enderror form-select">
-																								<option value="">Pilih Tipe</option>
-																								@foreach ($jenisUjian as $ju)
-																										<option value="{{ $ju->id }}">{{ $ju->nama }}</option>
-																								@endforeach
-																						</select>
-																						@error('jenis_ujian_id')
-																								<small class="text-danger">{{ $message }}</small>
-																						@enderror
+
+																		@foreach ($komposisi as $index => $row)
+																				<div class="row align-items-end mb-2">
+
+																						<div class="col-5">
+																								<label>Jenis Soal *</label>
+																								<select wire:model="komposisi.{{ $index }}.jenis_ujian_id"
+																										class="@error("komposisi.$index.jenis_ujian_id") is-invalid @enderror form-select">
+																										<option value="">Pilih Jenis</option>
+																										@foreach ($jenisUjian as $ju)
+																												<option value="{{ $ju->id }}">{{ $ju->nama }}</option>
+																										@endforeach
+																								</select>
+																								@error("komposisi.$index.jenis_ujian_id")
+																										<small class="text-danger">{{ $message }}</small>
+																								@enderror
+																						</div>
+
+																						<div class="col-3">
+																								<label>Jumlah Soal *</label>
+																								<input type="number" wire:model="komposisi.{{ $index }}.jumlah_soal"
+																										class="form-control @error("komposisi.$index.jumlah_soal") is-invalid @enderror"
+																										min="1">
+																								@error("komposisi.$index.jumlah_soal")
+																										<small class="text-danger">{{ $message }}</small>
+																								@enderror
+																						</div>
+
+																						<div class="col-2">
+																								<button type="button" wire:click="removeKomposisi({{ $index }})"
+																										class="btn btn-danger w-100">
+																										<i class="bx bx-trash"></i>
+																								</button>
+																						</div>
+
 																				</div>
+																		@endforeach
 
-																				<div class="col-3 mb-3">
-																						<label>Jumlah Soal<span class="text-danger">*</span></label>
-																						<input type="number" wire:model="jumlah_soal"
-																								class="form-control @error('jumlah_soal') is-invalid @enderror" min="1">
-																						@error('jumlah_soal')
-																								<small class="text-danger">{{ $message }}</small>
-																						@enderror
-																				</div>
-
-																				<div class="col-2 mb-3">
-																						<label>Durasi (menit) <span class="text-danger">*</span></label>
-																						<input type="number" wire:model="durasi_menit"
-																								class="form-control @error('durasi_menit') is-invalid @enderror" min="1">
-																						@error('durasi_menit')
-																								<small class="text-danger">{{ $message }}</small>
-																						@enderror
-																				</div>
-
-																				<div class="col-2 align-items-end d-flex">
-																						<button class="btn btn-danger"><i class="bx fs-5 bx-trash"></i></button>
-																				</div>
-
-																		</div>
-
-																		{{-- row button add komposisi --}}
-																		<div class="row mt-2">
-																				<button class="btn btn-primary col-3 mx-auto">+ Tambah Komposisi</button>
-																		</div>
+																		<button type="button" wire:click="addKomposisi" class="btn btn-primary mt-2">
+																				+ Tambah Komposisi
+																		</button>
 
 																</div>
+														</div>
+												@elseif($mode == 'random_by_jenis')
+														<div class="row">
+																<div class="col-5 mb-3">
+																		<label>Jenis Soal <span class="text-danger">*</span></label>
+																		<select wire:model="jenis_ujian_id" class="@error('jenis_ujian_id') is-invalid @enderror form-select">
+																				<option value="">Pilih Tipe</option>
+																				@foreach ($jenisUjian as $ju)
+																						<option value="{{ $ju->id }}">{{ $ju->nama }}</option>
+																				@endforeach
+																		</select>
+																		@error('jenis_ujian_id')
+																				<small class="text-danger">{{ $message }}</small>
+																		@enderror
+																</div>
+
+																<div class="col-3 mb-3">
+																		<label>Jumlah Soal<span class="text-danger">*</span></label>
+																		<input type="number" wire:model="jumlah_soal"
+																				class="form-control @error('jumlah_soal') is-invalid @enderror" min="1">
+																		@error('jumlah_soal')
+																				<small class="text-danger">{{ $message }}</small>
+																		@enderror
+																</div>
+
+
+
+
 														</div>
 												@elseif($mode == 'random_all')
 														<div class="row">
@@ -129,14 +154,7 @@
 																		@enderror
 																</div>
 
-																<div class="col-2 mb-3">
-																		<label>Durasi (menit) <span class="text-danger">*</span></label>
-																		<input type="number" wire:model="durasi_menit"
-																				class="form-control @error('durasi_menit') is-invalid @enderror" min="1">
-																		@error('durasi_menit')
-																				<small class="text-danger">{{ $message }}</small>
-																		@enderror
-																</div>
+
 														</div>
 
 												@endif

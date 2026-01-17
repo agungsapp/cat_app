@@ -1,0 +1,3 @@
+soal akan di generate ambil saat create sesi
+dengan begini semua siswa akan menerima kombinasi soal yang sama . 
+pengacakan hanya di bagian pengurutan di view
