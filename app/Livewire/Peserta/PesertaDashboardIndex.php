@@ -28,12 +28,24 @@ class PesertaDashboardIndex extends Component
     {
         $userId = Auth::id();
 
-        // Ujian yang tersedia (aktif dan belum dikerjakan user ini)
+        // ✅ Ujian yang tersedia (aktif, dalam periode, dan belum exceed max_attempt)
         $this->ujianTersedia = SesiUjian::where('is_active', true)
             ->where('waktu_mulai', '<=', now())
             ->where('waktu_selesai', '>=', now())
-            ->whereDoesntHave('hasilUjian', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
+            ->whereHas('tipeUjian')  // Pastikan ada tipe ujian
+            ->where(function ($query) use ($userId) {
+                $query->whereDoesntHave('hasilUjian', function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                })
+                    ->orWhereHas('tipeUjian', function ($tq) use ($userId) {
+                        // Cek max_attempt
+                        $tq->whereRaw('
+                        (tipe_ujians.max_attempt IS NULL) OR 
+                        (SELECT COUNT(*) FROM hasil_ujians 
+                         WHERE hasil_ujians.sesi_ujian_id = sesi_ujians.id 
+                         AND hasil_ujians.user_id = ?) < tipe_ujians.max_attempt
+                    ', [$userId]);
+                    });
             })
             ->count();
 
@@ -42,13 +54,13 @@ class PesertaDashboardIndex extends Component
             ->whereNotNull('selesai_at')
             ->count();
 
-        // Rata-rata nilai peserta ini
+        // Rata-rata skor peserta
         $this->rataRataNilai = HasilUjian::where('user_id', $userId)
             ->whereNotNull('selesai_at')
             ->whereNotNull('skor')
             ->avg('skor') ?? 0;
 
-        // Nilai tertinggi peserta ini
+        // Skor tertinggi peserta
         $this->nilaiTertinggi = HasilUjian::where('user_id', $userId)
             ->whereNotNull('selesai_at')
             ->whereNotNull('skor')
@@ -59,24 +71,39 @@ class PesertaDashboardIndex extends Component
     {
         $userId = Auth::id();
 
-        // Ambil ujian yang sedang aktif dan belum dikerjakan
+        // ✅ Eager load relasi + count soal via soal
         $this->ujianAktif = SesiUjian::where('is_active', true)
             ->where('waktu_mulai', '<=', now())
             ->where('waktu_selesai', '>=', now())
-            ->whereDoesntHave('hasilUjian', function ($q) use ($userId) {
-                $q->where('user_id', $userId);
+            ->with(['tipeUjian', 'soal'])  // ✅ Eager load
+            ->where(function ($query) use ($userId) {
+                $query->whereDoesntHave('hasilUjian', function ($q) use ($userId) {
+                    $q->where('user_id', $userId);
+                })
+                    ->orWhereHas('tipeUjian', function ($tq) use ($userId) {
+                        $tq->whereRaw('
+                        (tipe_ujians.max_attempt IS NULL) OR 
+                        (SELECT COUNT(*) FROM hasil_ujians 
+                         WHERE hasil_ujians.sesi_ujian_id = sesi_ujians.id 
+                         AND hasil_ujians.user_id = ?) < tipe_ujians.max_attempt
+                    ', [$userId]);
+                    });
             })
-            ->withCount('soal')
             ->latest('waktu_mulai')
             ->take(5)
-            ->get();
+            ->get()
+            ->map(function ($sesi) {
+                // ✅ Tambah count soal manual dari soal
+                $sesi->soal_count = $sesi->soal->count();
+                return $sesi;
+            });
     }
 
     public function loadRiwayatTerbaru()
     {
-        // Ambil 5 hasil ujian terakhir
+        // ✅ Eager load sesiUjian + tipeUjian
         $this->riwayatTerbaru = HasilUjian::where('user_id', Auth::id())
-            ->with('sesiUjian')
+            ->with(['sesiUjian.tipeUjian'])
             ->whereNotNull('selesai_at')
             ->latest('selesai_at')
             ->take(5)

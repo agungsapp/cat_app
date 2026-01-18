@@ -206,36 +206,29 @@
 												<div class="timeline timeline-one-side">
 														@foreach ($riwayatTerbaru as $hasil)
 																@php
-																		$statusClass = 'secondary';
-																		$statusIcon = 'bell-55';
-																		$statusText = 'Selesai';
-
-																		if ($hasil->skor >= 75) {
-																		    $statusClass = 'success';
-																		    $statusIcon = 'check-bold';
-																		    $statusText = 'Lulus';
-																		} elseif ($hasil->skor >= 60) {
-																		    $statusClass = 'warning';
-																		    $statusIcon = 'satisfied';
-																		    $statusText = 'Cukup';
-																		} else {
-																		    $statusClass = 'danger';
-																		    $statusIcon = 'fat-remove';
-																		    $statusText = 'Tidak Lulus';
-																		}
+																		// ✅ Kategori berdasarkan skor (tanpa "lulus/tidak lulus")
+																		$kategori = match (true) {
+																		    $hasil->skor >= 400 => ['class' => 'success', 'icon' => 'trophy', 'label' => 'Sangat Baik'],
+																		    $hasil->skor >= 300 => ['class' => 'info', 'icon' => 'check-bold', 'label' => 'Baik'],
+																		    $hasil->skor >= 200 => ['class' => 'warning', 'icon' => 'satisfied', 'label' => 'Cukup'],
+																		    default => ['class' => 'secondary', 'icon' => 'bullet-list-67', 'label' => 'Perlu Ditingkatkan'],
+																		};
 																@endphp
 
 																<div class="timeline-block mb-3">
-																		<span class="timeline-step bg-gradient-{{ $statusClass }}">
-																				<i class="ni ni-{{ $statusIcon }} text-white"></i>
+																		<span class="timeline-step bg-gradient-{{ $kategori['class'] }}">
+																				<i class="ni ni-{{ $kategori['icon'] }} text-white"></i>
 																		</span>
 																		<div class="timeline-content">
 																				<h6 class="text-dark font-weight-bold mb-0 text-sm">
-																						{{ Str::limit($hasil->sesiUjian->nama, 30) }}
+																						{{ Str::limit($hasil->sesiUjian->judul, 30) }}
 																				</h6>
-																				<p class="mb-2 mt-1 text-xs">
-																						<span class="badge badge-sm bg-gradient-{{ $statusClass }}">
-																								Nilai: {{ number_format($hasil->skor, 1) }} - {{ $statusText }}
+																				<p class="text-muted mb-1 mt-1 text-xs">
+																						{{ $hasil->sesiUjian->tipeUjian->nama }}
+																				</p>
+																				<p class="mb-2 text-xs">
+																						<span class="badge badge-sm bg-gradient-{{ $kategori['class'] }}">
+																								Skor: {{ number_format($hasil->skor, 0) }} - {{ $kategori['label'] }}
 																						</span>
 																				</p>
 																				<p class="text-secondary font-weight-normal mb-0 text-xs">
@@ -268,8 +261,27 @@
 								<div class="alert alert-info alert-dismissible fade show" role="alert">
 										<span class="alert-icon text-white"><i class="ni ni-bell-55"></i></span>
 										<span class="alert-text text-white">
-												<strong>Info:</strong> Ada {{ $ujianTersedia }} ujian yang dapat Anda kerjakan saat ini.
-												Pastikan Anda membaca petunjuk sebelum memulai ujian.
+												<strong>Info:</strong> Ada <strong>{{ $ujianTersedia }}</strong> ujian yang dapat Anda kerjakan saat ini.
+												@if ($ujianAktif->where('tipeUjian.slug', 'simulasi')->count() > 0)
+														Termasuk <strong>{{ $ujianAktif->where('tipeUjian.slug', 'simulasi')->count() }}</strong> simulasi CPNS!
+												@endif
+												Pastikan Anda siap sebelum memulai.
+										</span>
+										<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+										</button>
+								</div>
+						</div>
+				</div>
+		@elseif ($ujianSelesai > 0 && $ujianTersedia == 0)
+				<div class="row">
+						<div class="col-12">
+								<div class="alert alert-success alert-dismissible fade show" role="alert">
+										<span class="alert-icon text-white"><i class="ni ni-like-2"></i></span>
+										<span class="alert-text text-white">
+												Bagus! Anda telah menyelesaikan <strong>{{ $ujianSelesai }}</strong> ujian.
+												Rata-rata skor Anda: <strong>{{ number_format($rataRataNilai, 0) }}</strong>.
+												Terus tingkatkan!
 										</span>
 										<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
 												<span aria-hidden="true">&times;</span>
