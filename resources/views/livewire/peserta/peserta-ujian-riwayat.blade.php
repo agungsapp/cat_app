@@ -47,15 +47,30 @@
 														@php
 																$n = $index + 1;
 																$j = $jawaban[$soal->id] ?? null;
-																$status = $j ? ($j->benar ? 'benar' : 'salah') : 'tidak-dijawab';
+
+																// ✅ Cek apakah soal TKP atau bukan
+																$isTKP = $soal->jenis->tipe_penilaian === 'bobot_opsi';
+
+																// Untuk TWK/TIU: status benar/salah
+																// Untuk TKP: semua dianggap "terjawab" (ga ada konsep salah)
+																if ($isTKP) {
+																    $status = $j ? 'terjawab' : 'tidak-dijawab';
+																} else {
+																    $status = $j ? ($j->benar ? 'benar' : 'salah') : 'tidak-dijawab';
+																}
 														@endphp
+
 														<div
 																class="{{ $status == 'benar' ? 'border-success' : ($status == 'salah' ? 'border-danger' : 'border-secondary') }} mb-3 rounded border p-3">
 																<div class="d-flex justify-content-between mb-2">
-																		<strong>Soal {{ $n }}</strong>
+																		<strong>Soal {{ $n }} - {{ $soal->jenis->kode }}</strong>
 																		<span
 																				class="badge {{ $status == 'benar' ? 'bg-success' : ($status == 'salah' ? 'bg-danger' : 'bg-secondary') }}">
-																				{{ $status == 'benar' ? 'Benar' : ($status == 'salah' ? 'Salah' : 'Tidak Dijawab') }}
+																				@if ($isTKP)
+																						{{ $j ? "Skor: {$j->opsi->skor}" : 'Tidak Dijawab' }}
+																				@else
+																						{{ $status == 'benar' ? 'Benar' : ($status == 'salah' ? 'Salah' : 'Tidak Dijawab') }}
+																				@endif
 																		</span>
 																</div>
 
@@ -63,20 +78,38 @@
 
 																<!-- Jawaban Peserta -->
 																@if ($j)
-																		<div class="alert alert-info small mb-2 p-2">
+																		<div class="alert alert-info small mb-2 p-2 text-white">
 																				<strong>Jawaban Anda:</strong>
 																				{{ $j->opsi?->label }}. {{ $j->opsi?->teks }}
+																				@if ($isTKP)
+																						<span class="badge bg-primary ms-2">Skor: {{ $j->opsi?->skor }}</span>
+																				@endif
 																		</div>
 																@endif
 
-																<!-- Kunci Jawaban -->
-																<div class="alert alert-success small mb-2 p-2">
-																		<strong>Kunci:</strong>
+																<!-- Kunci Jawaban (hanya untuk TWK/TIU/SKD/SKB) -->
+																@if (!$isTKP)
 																		@php
 																				$kunci = $soal->opsi->where('is_correct', true)->first();
 																		@endphp
-																		{{ $kunci->label }}. {{ $kunci->teks }}
-																</div>
+																		@if ($kunci)
+																				<div class="alert alert-success small mb-2 p-2 text-white">
+																						<strong>Kunci:</strong>
+																						{{ $kunci->label }}. {{ $kunci->teks }}
+																				</div>
+																		@endif
+																@else
+																		<!-- Untuk TKP: tampilkan skor per opsi -->
+																		<div class="alert alert-light small mb-2 p-2">
+																				<strong>Skor Opsi:</strong>
+																				<ul class="mb-0 mt-1">
+																						@foreach ($soal->opsi as $opsi)
+																								<li>{{ $opsi->label }}. {{ $opsi->teks }} - <span
+																												class="badge bg-secondary">{{ $opsi->skor }}</span></li>
+																						@endforeach
+																				</ul>
+																		</div>
+																@endif
 
 																<!-- Pembahasan (jika ada) -->
 																@if ($soal->pembahasan)

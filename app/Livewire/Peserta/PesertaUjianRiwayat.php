@@ -25,14 +25,17 @@ class PesertaUjianRiwayat extends Component
         $this->selectedHasil = HasilUjian::with('sesiUjian.soal.opsi')->findOrFail($hasilId);
 
         $this->soalList = $this->selectedHasil->sesiUjian->soal()
-            ->with('opsi')
+            ->with(['opsi', 'jenis'])  // ✅ Tambah eager load jenisUjian
             ->get()
-            ->groupBy('jenis_ujian_id')
+            ->groupBy('jenis_id')  // ✅ Group by jenis_id (kolom), bukan relasi
             ->map(fn($group) => $group->shuffle())
             ->flatten()
             ->values();
 
-        $this->jawaban = $this->selectedHasil->jawaban()->get()->keyBy('soal_id');
+        $this->jawaban = $this->selectedHasil->jawaban()
+            ->with('opsi')  // ✅ Eager load opsi untuk akses skor
+            ->get()
+            ->keyBy('soal_id');
     }
 
     public function render()

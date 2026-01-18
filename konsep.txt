@@ -10,3 +10,4 @@ resources\views\livewire\peserta\peserta-ujian-riwayat.blade.php:78
 Attempt to read property "label" on null
 
 karna belum di sesuaikan sama skema baru sih.
+
