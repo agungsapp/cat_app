@@ -4,6 +4,7 @@ namespace App\Livewire\Peserta;
 
 use App\Models\HasilUjian;
 use App\Models\JawabanPeserta;
+use App\Services\FisherYatesShuffle;
 use App\Traits\HasAlert;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -50,14 +51,25 @@ class PesertaUjianSoal extends Component
 
     public function loadSoalList()
     {
-        // Group by jenis_ujian_id, shuffle each group, then flatten
-        $this->soalList = $this->hasil->sesiUjian->soal()
+        $shuffleService = new FisherYatesShuffle();
+
+        // Ambil semua soal dari sesi
+        $soals = $this->hasil->sesiUjian->soal()
             ->with(['opsi', 'jenis'])
-            ->get()
-            ->groupBy('jenis_ujian_id')
-            ->map(fn($group) => $group->shuffle())
-            ->flatten()
-            ->values();
+            ->get();
+
+        // ✅ Generate seed unique per user + sesi + attempt
+        $seed = $shuffleService->generateSeed(
+            $this->hasil->user_id,
+            $this->hasil->sesi_ujian_id
+        );
+
+        // Shuffle dengan seed (urutan konsisten untuk user yang sama di sesi yang sama)
+        $this->soalList = $shuffleService->shuffleGrouped(
+            $soals,
+            'jenis_id',
+            $seed
+        );
 
         $this->totalSoal = $this->soalList->count();
     }
