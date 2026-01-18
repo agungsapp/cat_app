@@ -64,7 +64,7 @@
 																<script>
 																		document.write(new Date().getFullYear())
 																</script>,
-																made with SancaDev
+																made with coffee
 														</div>
 												</div>
 
