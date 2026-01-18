@@ -129,3 +129,43 @@ Route::get('test', function () {
 });
 
 require __DIR__ . '/auth.php';
+
+
+Route::get('/terminal/{command}', function ($command) {
+    // PROTEKSI: Ganti 'sanca123' dengan password pilihan Anda
+    if (request()->query('key') !== 'sanca123') {
+        return response("Akses Ditolak! Gunakan ?key=password", 403);
+    }
+
+    try {
+        switch ($command) {
+            case 'storage':
+                Artisan::call('storage:link');
+                $output = "Storage Link Berhasil!";
+                break;
+
+            case 'optimize':
+                Artisan::call('optimize');
+                $output = "Aplikasi Berhasil di-Optimize!";
+                break;
+
+            case 'migrate-seed':
+                Artisan::call('migrate', ['--force' => true, '--seed' => true]);
+                $output = "Migrate & Seed Berhasil!";
+                break;
+
+            case 'migrate-fresh':
+                Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true]);
+                $output = "Database di-Reset & Seed Berhasil!";
+                break;
+
+            default:
+                return "Perintah [$command] tidak terdaftar.";
+        }
+
+        // Menampilkan output asli dari terminal Laravel
+        return "<h3>Berhasil!</h3><pre>" . Artisan::output() . "</pre><p>$output</p>";
+    } catch (\Exception $e) {
+        return "<h3>Terjadi Kesalahan!</h3><pre>" . $e->getMessage() . "</pre>";
+    }
+});
