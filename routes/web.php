@@ -145,7 +145,7 @@ Route::get('/terminal/{command}', function ($command) {
                 break;
 
             case 'optimize':
-                Artisan::call('optimize');
+                Artisan::call('optimize');  
                 $output = "Aplikasi Berhasil di-Optimize!";
                 break;
 
