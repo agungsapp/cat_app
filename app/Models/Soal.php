@@ -14,12 +14,12 @@ class Soal extends Model
         'pertanyaan_text',
         'media_type',
         'media_path',
-        'skor',
+        // 'skor',
     ];
 
-    protected $casts = [
-        'skor' => 'integer',
-    ];
+    // protected $casts = [
+    //     'skor' => 'integer',
+    // ];
 
     // Relasi ke JenisUjian
     public function jenis()

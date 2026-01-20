@@ -4,6 +4,7 @@ namespace App\Livewire\Peserta;
 
 use App\Models\HasilUjian;
 use App\Models\JawabanPeserta;
+use App\Services\FisherYatesShuffle;
 use App\Traits\HasAlert;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -37,9 +38,10 @@ class PesertaUjianSoal extends Component
             abort(403, 'Unauthorized');
         }
 
-        // Check if already finished
+        // Check if already finished → Set flag, redirect di render()
         if ($this->hasil->selesai_at) {
-            return redirect()->route('peserta.ujian.selesai', $this->hasilId);
+            $this->redirectRoute('peserta.ujian.selesai', ['hasil_id' => $this->hasilId]);
+            return;
         }
 
         $this->loadSoalList();
@@ -49,14 +51,25 @@ class PesertaUjianSoal extends Component
 
     public function loadSoalList()
     {
-        // Group by jenis_ujian_id, shuffle each group, then flatten
-        $this->soalList = $this->hasil->sesiUjian->soal()
+        $shuffleService = new FisherYatesShuffle();
+
+        // Ambil semua soal dari sesi
+        $soals = $this->hasil->sesiUjian->soal()
             ->with(['opsi', 'jenis'])
-            ->get()
-            ->groupBy('jenis_ujian_id')
-            ->map(fn($group) => $group->shuffle())
-            ->flatten()
-            ->values();
+            ->get();
+
+        // ✅ Generate seed unique per user + sesi + attempt
+        $seed = $shuffleService->generateSeed(
+            $this->hasil->user_id,
+            $this->hasil->sesi_ujian_id
+        );
+
+        // Shuffle dengan seed (urutan konsisten untuk user yang sama di sesi yang sama)
+        $this->soalList = $shuffleService->shuffleGrouped(
+            $soals,
+            'jenis_id',
+            $seed
+        );
 
         $this->totalSoal = $this->soalList->count();
     }
@@ -85,21 +98,21 @@ class PesertaUjianSoal extends Component
     public function pilihJawaban($nomor, $opsiId)
     {
         $soal = $this->soalList->get($nomor - 1);
-
-        if (!$soal) {
-            return;
-        }
+        if (!$soal) return;
 
         $opsi = $soal->opsi->find($opsiId);
+        if (!$opsi) return;
 
-        if (!$opsi) {
-            return;
+        // ✅ Tentukan 'benar' berdasarkan jenis
+        $jenis = $soal->jenis;
+
+        if ($jenis->tipe_penilaian === 'benar_salah') {
+            $benar = $opsi->is_correct; // TWK/TIU
+        } else {
+            $benar = false; // TKP (ga ada konsep benar/salah)
         }
 
-        $benar = $opsi->is_correct ?? false;
-
         try {
-            // Save to database immediately
             JawabanPeserta::updateOrCreate(
                 [
                     'hasil_ujian_id' => $this->hasilId,
@@ -111,11 +124,9 @@ class PesertaUjianSoal extends Component
                 ]
             );
 
-            // Update local state
             $this->selectedOpsi[$nomor] = $opsiId;
             $this->jawabanStatus[$nomor] = 'terjawab';
 
-            // Success notification (subtle)
             $this->dispatch('jawaban-tersimpan');
         } catch (\Exception $e) {
             $this->alertError('Gagal Menyimpan', 'Terjadi kesalahan saat menyimpan jawaban.');
@@ -243,25 +254,50 @@ class PesertaUjianSoal extends Component
 
     public function hitungSkor()
     {
-        $jawabanBenar = JawabanPeserta::where('hasil_ujian_id', $this->hasilId)
-            ->where('benar', true)
-            ->with('soal')
+        // Ambil semua jawaban peserta dengan relasi
+        $jawaban = JawabanPeserta::where('hasil_ujian_id', $this->hasilId)
+            ->with(['soal.jenis', 'opsi'])
             ->get();
 
-        $skorPeserta = $jawabanBenar->sum(function ($jawaban) {
-            return $jawaban->soal->skor ?? 1;
-        });
+        $skorPerJenis = [];
+        $totalSkor = 0;
 
-        $totalSkorMaks = $this->hasil->sesiUjian->soal->sum('skor');
-        $nilai = 0;
+        foreach ($jawaban as $item) {
+            $jenis = $item->soal->jenis;
+            $jenisId = $jenis->id;
 
-        if ($totalSkorMaks > 0) {
-            $nilai = ($skorPeserta / $totalSkorMaks) * 100;
+            // Initialize jika belum ada
+            if (!isset($skorPerJenis[$jenisId])) {
+                $skorPerJenis[$jenisId] = [
+                    'nama' => $jenis->nama,
+                    'kode' => $jenis->kode,
+                    'skor' => 0,
+                ];
+            }
+
+            // Hitung skor berdasarkan tipe penilaian
+            if ($jenis->tipe_penilaian === 'benar_salah') {
+                // TWK, TIU, SKD, SKB
+                if ($item->benar) {
+                    $skorSoal = $jenis->bobot_per_soal; // 5
+                    $skorPerJenis[$jenisId]['skor'] += $skorSoal;
+                    $totalSkor += $skorSoal;
+                }
+            } elseif ($jenis->tipe_penilaian === 'bobot_opsi') {
+                // TKP
+                if ($item->opsi) {
+                    $skorSoal = $item->opsi->skor ?? 0; // 1-5
+                    $skorPerJenis[$jenisId]['skor'] += $skorSoal;
+                    $totalSkor += $skorSoal;
+                }
+            }
         }
 
+        // Simpan ke hasil_ujian
         $this->hasil->update([
             'selesai_at' => now(),
-            'skor' => round($nilai, 2)
+            'skor' => $totalSkor,
+            'skor_detail' => json_encode($skorPerJenis), // ✅ Simpan breakdown per jenis
         ]);
     }
 

@@ -13,7 +13,7 @@ class JenisUjianPage extends Component
 
     protected string $paginationTheme = 'bootstrap';
 
-    public $nama;
+    public $nama, $tipe_penilaian;
     public $search = '';
     public $jenisUjianId;
     public $updateMode = false;
@@ -21,6 +21,7 @@ class JenisUjianPage extends Component
 
     protected $rules = [
         'nama' => 'required|string|max:255',
+        'tipe_penilaian' => 'required|string|in:benar_salah,bobot_opsi',
     ];
 
     // Biar pagination reset saat search berubah
@@ -40,7 +41,7 @@ class JenisUjianPage extends Component
 
     public function resetForm()
     {
-        $this->reset(['nama', 'jenisUjianId', 'updateMode', 'showModal']);
+        $this->reset(['nama', 'tipe_penilaian', 'jenisUjianId', 'updateMode', 'showModal']);
         $this->resetValidation();
     }
 
@@ -56,6 +57,7 @@ class JenisUjianPage extends Component
 
         JenisUjian::create([
             'nama' => $this->nama,
+            'tipe_penilaian' => $this->tipe_penilaian,
         ]);
 
         $this->alertSuccess("Berhasil!", "Jenis ujian berhasil ditambahkan.");
@@ -68,6 +70,7 @@ class JenisUjianPage extends Component
         $jenis = JenisUjian::findOrFail($id);
         $this->jenisUjianId = $jenis->id;
         $this->nama = $jenis->nama;
+        $this->tipe_penilaian = $jenis->tipe_penilaian;
         $this->updateMode = true;
         $this->showModal = true;
     }
@@ -77,7 +80,7 @@ class JenisUjianPage extends Component
         $this->validate();
 
         $jenis = JenisUjian::findOrFail($this->jenisUjianId);
-        $jenis->update(['nama' => $this->nama]);
+        $jenis->update(['nama' => $this->nama, 'tipe_penilaian' => $this->tipe_penilaian]);
 
         $this->alertSuccess("Berhasil!", "Jenis ujian berhasil diperbarui.");
 

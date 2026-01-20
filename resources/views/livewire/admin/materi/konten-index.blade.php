@@ -1,80 +1,30 @@
 <div>
 		<div class="row">
 				<div class="col-12">
-						<!-- Breadcrumb -->
-						<div class="mb-4">
-								<nav aria-label="breadcrumb">
-										<ol class="breadcrumb">
-												<li class="breadcrumb-item"><a href="{{ route('admin.materi.topik.index') }}">Kelola Topik</a></li>
-												<li class="breadcrumb-item"><a
-																href="{{ route('admin.materi.materi.index', $topik->id) }}">{{ $topik->nama_topik }}</a></li>
-												<li class="breadcrumb-item"><a
-																href="{{ route('admin.materi.submateri.index', [$topik->id, $materi->id]) }}">{{ $materi->judul }}</a>
-												</li>
-												<li class="breadcrumb-item active">{{ $submateri->judul }}</li>
-										</ol>
-								</nav>
-								<h4 class="mb-0">Kelola Konten → {{ $submateri->judul }}</h4>
-						</div>
-
-						<!-- Form Tambah / Edit -->
-						<div class="card mb-4">
-								<div class="card-body">
-										<form wire:submit.prevent="{{ $updateMode ? 'update' : 'store' }}">
-												<div class="row mb-3">
-														<div class="col-md-3">
-																<label class="form-label">Tipe Konten</label>
-																<select wire:model.live="tipe" class="form-select">
-																		<option value="video">Video (YouTube)</option>
-																		<option value="pdf">PDF</option>
-																</select>
-														</div>
-
-														@if ($tipe === 'video')
-																<div class="col-md-9">
-																		<label class="form-label">Link YouTube</label>
-																		<input type="url" wire:model="youtube_url"
-																				class="form-control @error('youtube_url') is-invalid @enderror"
-																				placeholder="https://www.youtube.com/watch?v=...">
-																		@error('youtube_url')
-																				<small class="text-danger">{{ $message }}</small>
-																		@enderror
-																</div>
-														@else
-																<div class="col-md-9">
-																		<label class="form-label">Upload PDF</label>
-																		<input type="file" wire:model="file" class="form-control @error('file') is-invalid @enderror"
-																				accept=".pdf">
-																		@error('file')
-																				<small class="text-danger">{{ $message }}</small>
-																		@enderror
-																		<div wire:loading wire:target="file">
-																				<small class="text-info">Sedang mengunggah...</small>
-																		</div>
-																</div>
-														@endif
-												</div>
-
-												<div class="row mb-3">
-														<div class="col-12">
-																<label class="form-label">Deskripsi (Opsional)</label>
-																<textarea wire:model="isi" class="form-control" rows="3" placeholder="Judul tambahan, catatan, dll"></textarea>
-														</div>
-												</div>
-
-												<div class="row">
-														<div class="col-12">
-																<button type="submit" class="btn btn-primary" wire:loading.attr="disabled"
-																		wire:target="{{ $updateMode ? 'update' : 'store' }}">
-																		{{ $updateMode ? 'Update' : 'Simpan' }}
-																</button>
-																@if ($updateMode)
-																		<button type="button" class="btn btn-secondary" wire:click="resetForm">Batal</button>
-																@endif
-														</div>
-												</div>
-										</form>
+						<!-- Breadcrumb + Judul + Tombol Tambah -->
+						<div class="d-flex justify-content-between align-items-start mb-4">
+								<div>
+										<nav aria-label="breadcrumb">
+												<ol class="breadcrumb">
+														<li class="breadcrumb-item">
+																<a href="{{ route('admin.materi.topik.index') }}">Kelola Topik</a>
+														</li>
+														<li class="breadcrumb-item">
+																<a href="{{ route('admin.materi.materi.index', $topik->id) }}">{{ $topik->nama_topik }}</a>
+														</li>
+														<li class="breadcrumb-item">
+																<a
+																		href="{{ route('admin.materi.submateri.index', [$topik->id, $materi->id]) }}">{{ $materi->judul }}</a>
+														</li>
+														<li class="breadcrumb-item active" aria-current="page">{{ $submateri->judul }}</li>
+												</ol>
+										</nav>
+										<h4 class="mb-0">Kelola Konten → {{ $submateri->judul }}</h4>
 								</div>
+
+								<button wire:click="openCreateModal" class="btn btn-primary btn-sm">
+										<i class="bx bx-plus"></i> Tambah Konten
+								</button>
 						</div>
 
 						<!-- Daftar Konten -->
@@ -83,7 +33,7 @@
 										<h5 class="mb-0">Daftar Konten</h5>
 								</div>
 
-								<div class="card-body pb-2 pt-0">
+								<div class="card-body pb-2 pt-3">
 										<div class="row mb-3">
 												<div class="col-12">
 														<input type="text" wire:model.live="search" class="form-control w-25 ms-auto"
@@ -95,23 +45,26 @@
 												<table class="align-items-center mb-0 table">
 														<thead>
 																<tr>
-																		<th style="width: 8%" class="opacity-7 text-xs">#</th>
-																		<th class="opacity-7 text-xs">Preview</th>
-																		<th class="opacity-7 text-xs">Tipe</th>
-																		<th class="opacity-7 text-xs">Info</th>
-																		<th style="width: 12%" class="opacity-7 text-xs">Urutan</th>
-																		<th style="width: 18%" class="opacity-7 text-xs">Aksi</th>
+																		<th style="width: 8%" class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">#
+																		</th>
+																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Preview</th>
+																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Tipe</th>
+																		<th class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Info</th>
+																		<th style="width: 12%" class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">
+																				Urutan</th>
+																		<th style="width: 18%" class="text-uppercase text-secondary font-weight-bolder opacity-7 text-xs">Aksi
+																		</th>
 																</tr>
 														</thead>
 														<tbody>
-																@forelse ($listKonten as $item)
+																@forelse ($listKonten as $index => $item)
 																		<tr>
-																				<td>{{ $loop->iteration + $listKonten->perPage() * ($listKonten->currentPage() - 1) }}</td>
+																				<td>{{ $listKonten->firstItem() + $index }}</td>
 																				<td>
 																						@if ($item->tipe === 'video')
 																								<a href="{{ $item->file_path }}" target="_blank" class="d-block">
 																										<img src="{{ $item->getYouTubeThumbnail() }}" class="youtube-thumbnail rounded shadow-sm"
-																												alt="YouTube">
+																												alt="YouTube Preview">
 																								</a>
 																						@else
 																								<a href="{{ Storage::url($item->file_path) }}" target="_blank">
@@ -137,16 +90,19 @@
 																						<span class="badge bg-info">{{ $item->urutan }}</span>
 																				</td>
 																				<td>
-																						<button wire:click="edit({{ $item->id }})" class="btn btn-sm btn-info"><x-icon
-																										name="edit" /></button>
-																						<button wire:click="confirmDelete({{ $item->id }})" class="btn btn-sm btn-danger"><x-icon
-																										name="delete" /></button>
+																						<button wire:click="edit({{ $item->id }})" class="btn btn-sm btn-info" title="Edit">
+																								<x-icon name="edit" />
+																						</button>
+																						<button wire:click="confirmDelete({{ $item->id }})" class="btn btn-sm btn-danger"
+																								title="Hapus">
+																								<x-icon name="delete" />
+																						</button>
 																				</td>
 																		</tr>
 																@empty
 																		<tr>
 																				<td colspan="6" class="text-muted p-4 text-center">
-																						<i class='bxr fs-1 text-secondary bx-archive'></i>
+																						<i class='bx bx-archive fs-1 text-secondary'></i>
 																						<p class="fs-3 text-secondary">- Belum ada konten -</p>
 																				</td>
 																		</tr>
@@ -164,6 +120,82 @@
 						</div>
 				</div>
 		</div>
+
+		<!-- Modal Tambah / Edit Konten -->
+		@if ($showModal)
+				<div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1"
+						role="dialog" wire:click.outside="closeModal">
+						<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+								<div class="modal-content">
+										<div class="modal-header">
+												<h5 class="modal-title">
+														{{ $updateMode ? 'Edit Konten' : 'Tambah Konten Baru' }}
+												</h5>
+												<button type="button" class="btn-close" wire:click="closeModal" aria-label="Close"></button>
+										</div>
+
+										<form wire:submit.prevent="{{ $updateMode ? 'update' : 'store' }}">
+												<div class="modal-body">
+														<div class="row mb-3">
+																<div class="col-md-4">
+																		<label class="form-label">Tipe Konten</label>
+																		<select wire:model.live="tipe" class="form-select">
+																				<option value="video">Video (YouTube)</option>
+																				<option value="pdf">PDF</option>
+																		</select>
+																</div>
+
+																@if ($tipe === 'video')
+																		<div class="col-md-8">
+																				<label class="form-label">Link YouTube</label>
+																				<input type="url" wire:model="youtube_url"
+																						class="form-control @error('youtube_url') is-invalid @enderror"
+																						placeholder="https://www.youtube.com/watch?v=...">
+																				@error('youtube_url')
+																						<small class="text-danger">{{ $message }}</small>
+																				@enderror
+																		</div>
+																@else
+																		<div class="col-md-8">
+																				<label class="form-label">Upload PDF (maks 50MB)</label>
+																				<input type="file" wire:model="file" class="form-control @error('file') is-invalid @enderror"
+																						accept=".pdf">
+																				@error('file')
+																						<small class="text-danger">{{ $message }}</small>
+																				@enderror
+																				<div wire:loading wire:target="file">
+																						<small class="text-info d-block mt-1">Sedang mengunggah file...</small>
+																				</div>
+																		</div>
+																@endif
+														</div>
+
+														<div class="mb-3">
+																<label class="form-label">Deskripsi / Catatan (opsional)</label>
+																<textarea wire:model="isi" class="form-control" rows="3"
+																  placeholder="Judul tambahan, catatan, atau deskripsi singkat untuk konten ini"></textarea>
+														</div>
+												</div>
+
+												<div class="modal-footer">
+														<button type="button" class="btn btn-secondary" wire:click="closeModal">
+																Batal
+														</button>
+														<button type="submit" class="btn btn-primary" wire:loading.attr="disabled"
+																wire:target="store,update">
+																<span wire:loading.remove wire:target="store,update">
+																		{{ $updateMode ? 'Update' : 'Simpan' }}
+																</span>
+																<span wire:loading wire:target="store,update">
+																		<i class="bx bx-loader bx-spin"></i> Memproses...
+																</span>
+														</button>
+												</div>
+										</form>
+								</div>
+						</div>
+				</div>
+		@endif
 
 		@push('css')
 				<style>

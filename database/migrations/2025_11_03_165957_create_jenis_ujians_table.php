@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('jenis_ujians', function (Blueprint $table) {
             $table->id();
+            $table->string('kode'); // TWK, TIU, TKP
             $table->string('nama');
+            $table->enum('tipe_penilaian', ['benar_salah', 'bobot_opsi']);
+            $table->integer('bobot_per_soal')->nullable();
             $table->timestamps();
         });
     }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->dateTime('mulai_at');
             $table->dateTime('selesai_at')->nullable();
             $table->integer('skor')->nullable();
+            $table->json('skor_detail')->nullable();
             $table->timestamps();
         });
     }

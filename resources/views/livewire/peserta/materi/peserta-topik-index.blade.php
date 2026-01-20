@@ -24,7 +24,7 @@
 										<div class="card-header bg-gradient-primary border-0 text-white">
 												<div class="d-flex justify-content-between align-items-center">
 														<div>
-																<h5 class="mb-0">{{ $topik->nama_topik }}</h5>
+																<h5 class="mb-0 text-white">{{ $topik->nama_topik }}</h5>
 																<small class="opacity-9">
 																		{{ $topik->total_konten }} konten •
 																		{{ $topik->completed_konten }} selesai •

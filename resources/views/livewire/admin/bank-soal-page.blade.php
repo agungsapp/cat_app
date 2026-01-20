@@ -45,7 +45,16 @@
 														<div class="d-flex justify-content-between align-items-start mb-3">
 																<div>
 																		<span class="badge bg-info">{{ $soal->jenis->nama ?? '-' }}</span>
-																		<span class="badge bg-success ms-2">Skor: {{ $soal->skor }}</span>
+																		@if ($soal->jenis->tipe_penilaian === 'benar_salah')
+																				<span class="badge bg-success ms-2">
+																						Skor Benar: {{ $soal->jenis->bobot_per_soal }}
+																				</span>
+																		@elseif ($soal->jenis->tipe_penilaian === 'bobot_opsi')
+																				<span class="badge bg-warning ms-2">
+																						Tipe: TKP (Bobot Opsi)
+																				</span>
+																		@endif
+
 																</div>
 																<div>
 																		<a href="{{ route('admin.bank-soal.edit', $soal->id) }}" class="btn btn-sm btn-warning">
@@ -78,32 +87,50 @@
 														<!-- Opsi Jawaban -->
 														<div class="mt-3">
 																<h6 class="text-muted mb-2">Pilihan Jawaban:</h6>
+
+																@php
+																		$isBenarSalah = $soal->jenis->tipe_penilaian === 'benar_salah';
+																@endphp
+
 																@foreach ($soal->opsi as $opsi)
 																		<div
-																				class="d-flex align-items-start {{ $opsi->is_correct ? 'bg-success bg-opacity-10 border border-success' : 'bg-light' }} mb-2 rounded p-2">
+																				class="d-flex align-items-start {{ $isBenarSalah && $opsi->is_correct ? 'bg-success bg-opacity-10 border border-success' : 'bg-light' }} mb-2 rounded p-2">
+
 																				<div class="me-3">
-																						<span class="badge {{ $opsi->is_correct ? 'bg-success' : 'bg-secondary' }}">
+																						<span class="badge {{ $isBenarSalah && $opsi->is_correct ? 'bg-success' : 'bg-secondary' }}">
 																								{{ $opsi->label }}
 																						</span>
 																				</div>
-																				<div class="flex-grow-1">
+
+																				<div class="flex-grow-1 d-flex justify-content-between align-items-center">
+																						{{-- Konten opsi --}}
 																						@if ($opsi->media_type === 'image' && $opsi->media_path)
 																								<img src="{{ Storage::url($opsi->media_path) }}" alt="Opsi {{ $opsi->label }}"
 																										class="img-fluid rounded" style="max-height: 150px;">
-																						@elseif($opsi->media_type === 'audio' && $opsi->media_path)
+																						@elseif ($opsi->media_type === 'audio' && $opsi->media_path)
 																								<audio controls style="height: 30px; width: 200px;">
 																										<source src="{{ Storage::url($opsi->media_path) }}" type="audio/mpeg">
 																								</audio>
 																						@else
-																								<span>{{ $opsi->teks }}</span>
+																								<span class="{{ $opsi->is_correct ? 'text-white' : '' }}">{{ $opsi->teks }}</span>
 																						@endif
-																						@if ($opsi->is_correct)
+
+																						{{-- ICON BENAR (HANYA TWK / TIU) --}}
+																						@if ($isBenarSalah && $opsi->is_correct)
 																								<i class="fas fa-check-circle text-success ms-2"></i>
+																						@endif
+
+																						{{-- SKOR OPSI (KHUSUS TKP) --}}
+																						@if (!$isBenarSalah)
+																								<span class="badge bg-info ms-2">
+																										Skor: {{ $opsi->skor }}
+																								</span>
 																						@endif
 																				</div>
 																		</div>
 																@endforeach
 														</div>
+
 												</div>
 										</div>
 								</div>

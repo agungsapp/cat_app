@@ -1,0 +1,13 @@
+soal akan di generate ambil saat create sesi
+dengan begini semua siswa akan menerima kombinasi soal yang sama . 
+pengacakan hanya di bagian pengurutan di view
+
+note: 
+- fitur edit soal belum bener bener 
+- riwayat ujian masih error 
+ErrorException
+resources\views\livewire\peserta\peserta-ujian-riwayat.blade.php:78
+Attempt to read property "label" on null
+
+karna belum di sesuaikan sama skema baru sih.
+

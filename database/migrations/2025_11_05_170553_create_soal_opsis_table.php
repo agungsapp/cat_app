@@ -18,7 +18,8 @@ return new class extends Migration
             $table->text('teks')->nullable();
             $table->enum('media_type', ['none', 'image', 'audio'])->default('none');
             $table->string('media_path')->nullable();
-            $table->boolean('is_correct');
+            $table->boolean('is_correct')->default(false);
+            $table->integer('skor')->nullable();
             $table->timestamps();
         });
     }

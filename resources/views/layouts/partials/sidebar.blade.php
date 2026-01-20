@@ -131,6 +131,19 @@
 												<span class="nav-link-text ms-1">Riwayat Ujian</span>
 										</a>
 								</li>
+								<li class="nav-item mt-3">
+										<h6 class="text-uppercase font-weight-bolder opacity-6 ms-2 ps-4 text-xs">Materi</h6>
+								</li>
+								<li class="nav-item">
+										<a class="nav-link {{ Route::is('peserta.materi.*') ? 'active' : '' }}"
+												href="{{ route('peserta.materi.index') }}">
+												<div
+														class="icon icon-shape icon-sm border-radius-md d-flex align-items-center justify-content-center me-2 text-center">
+														<i class='bx bx-book-alt text-dark fs-5 text-sm' style="font-size: 30px; font-weight: bold"></i>
+												</div>
+												<span class="nav-link-text ms-1">Materi</span>
+										</a>
+								</li>
 						@endcan
 
 

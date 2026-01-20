@@ -9,44 +9,36 @@ class PesertaUjianSelesai extends Component
 {
     public $hasil;
     public $skor;
-    public $totalSoal;
-    public $jawabanBenar;
+    public $skorDetail;
     public $durasiDigunakan;
 
     public function mount($hasil_id)
     {
-        $this->hasil = HasilUjian::with(['sesiUjian', 'jawaban.soal'])->findOrFail($hasil_id);
+        $this->hasil = HasilUjian::with('sesiUjian')->findOrFail($hasil_id);
 
+        // Security
         if ($this->hasil->user_id !== auth()->id()) {
             abort(403);
         }
 
-        // Hitung ulang skor (pasti aman)
-        $this->hitungSkor();
-
-        // Durasi digunakan
-        $totalMenit = $this->hasil->mulai_at->diffInMinutes($this->hasil->selesai_at ?? now());
-        // dd($totalMenit);
-        // $durasiJamDesimal = $totalMenit / 60; 
-        $this->durasiDigunakan = ceil($totalMenit);
-    }
-
-    public function hitungSkor()
-    {
-        $this->jawabanBenar = $this->hasil->jawaban()->where('benar', true)->count();
-        $skorPerSoal = $this->hasil->sesiUjian->soal->first()?->skor ?? 1;
-        $this->skor = $this->jawabanBenar * $skorPerSoal;
-        $this->totalSoal = $this->hasil->sesiUjian->soal->count();
-
-        // Update jika belum
-        if (!$this->hasil->skor) {
-            $this->hasil->update([
-                'selesai_at' => now(),
-                'skor' => $this->skor
-            ]);
-        } else {
-            $this->skor = $this->hasil->skor;
+        // 🚫 Jika belum selesai, tendang balik
+        if (!$this->hasil->selesai_at) {
+            return redirect()->route('peserta.ujian.soal', $this->hasil->id);
         }
+
+        // ✅ Ambil skor FINAL (hasil hitung di PesertaUjianSoal)
+        $this->skor = $this->hasil->skor;
+
+        // ✅ Ambil breakdown skor (TWK / TIU / TKP)
+        $this->skorDetail = $this->hasil->skor_detail
+            ? json_decode($this->hasil->skor_detail, true)
+            : [];
+
+        // ✅ Durasi pengerjaan (menit)
+        $durasi = $this->hasil->mulai_at
+            ->diffInMinutes($this->hasil->selesai_at);
+
+        $this->durasiDigunakan = max(1, $durasi);
     }
 
     public function render()

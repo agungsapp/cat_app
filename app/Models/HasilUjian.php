@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class HasilUjian extends Model
 {
-    protected $fillable = ['user_id', 'sesi_ujian_id', 'mulai_at', 'selesai_at', 'skor'];
+    protected $fillable = ['user_id', 'sesi_ujian_id', 'mulai_at', 'selesai_at', 'skor', 'skor_detail'];
     protected $casts = ['mulai_at' => 'datetime', 'selesai_at' => 'datetime'];
 
     public function user()

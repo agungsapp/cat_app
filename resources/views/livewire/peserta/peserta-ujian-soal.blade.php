@@ -44,6 +44,8 @@
 														<div class="mb-4">
 																<p class="fs-5 fw-bold">{!! nl2br(e($soal->pertanyaan_text)) !!}</p>
 														</div>
+														{{-- DEBUG MODE ONLY --}}
+														<span class="badge bg-warning text-dark">{{ $soal->jenis->nama }}</span>
 
 														<!-- Opsi Jawaban -->
 														<div class="mt-4">
@@ -65,6 +67,9 @@
 																												style="max-height: 80px;" alt="Opsi {{ $opsi->label }}">
 																								@endif
 																								{{ $opsi->teks }}
+
+																								<span
+																										class="badge bg-{{ $opsi->is_correct ? 'success' : 'danger' }} text-dark">{{ $opsi->is_correct ? 'pilih_ini' : 'ini_salah' }}</span>
 																						</span>
 																				</label>
 																		</div>
@@ -284,7 +289,6 @@
 								}, 500);
 						}
 				});
-
 				// ===== TIMER POLLING =====
 				setInterval(() => {
 						@this.call('pollTimer');

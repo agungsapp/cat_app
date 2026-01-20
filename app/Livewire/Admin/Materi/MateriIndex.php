@@ -19,6 +19,7 @@ class MateriIndex extends Component
     public $search = '';
     public $materiId;
     public $updateMode = false;
+    public $showModal = false; // Tambahan untuk kontrol modal
 
     protected $rules = [
         'judul' => 'required|string|max:255',
@@ -50,7 +51,14 @@ class MateriIndex extends Component
 
     public function resetForm()
     {
-        $this->reset(['judul', 'materiId', 'updateMode']);
+        $this->reset(['judul', 'materiId', 'updateMode', 'showModal']);
+        $this->resetValidation();
+    }
+
+    public function openCreateModal()
+    {
+        $this->resetForm();
+        $this->showModal = true;
     }
 
     public function store()
@@ -73,6 +81,7 @@ class MateriIndex extends Component
         $this->materiId   = $materi->id;
         $this->judul      = $materi->judul;
         $this->updateMode = true;
+        $this->showModal  = true;
     }
 
     public function update()
@@ -86,11 +95,16 @@ class MateriIndex extends Component
         $this->resetForm();
     }
 
+    public function closeModal()
+    {
+        $this->resetForm();
+    }
+
     public function confirmDelete($id)
     {
         $this->alertConfirm(
             'Hapus Materi?',
-            'Yakin ingin menghapus topik ini? Semua submateri & konten di dalamnya juga akan ikut terhapus.',
+            'Yakin ingin menghapus materi ini? Semua submateri & konten di dalamnya juga akan ikut terhapus.',
             'deleteConfirmed',
             ['id' => $id]
         );

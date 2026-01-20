@@ -20,7 +20,7 @@ class SoalFactory extends Factory
             'pertanyaan_text' => $this->faker->paragraph(2),
             'media_type' => 'none',
             'media_path' => null,
-            'skor' => $this->faker->numberBetween(1, 5),
+            // 'skor' => $this->faker->numberBetween(1, 5),
         ];
     }
 }

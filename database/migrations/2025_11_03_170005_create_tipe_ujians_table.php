@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nama');
             $table->string('slug')->unique();
             $table->integer('max_attempt')->nullable();
+            $table->enum('mode', ['random_all', 'random_by_jenis', 'fixed_rule'])->nullable();
             $table->timestamps();
         });
     }

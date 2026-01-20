@@ -12,19 +12,41 @@ class BankSoalSeeder extends Seeder
 {
     public function run()
     {
-        // Pastikan ada Jenis Ujian
+        Soal::factory(100)->create()->each(function ($soal) {
+            $jenis = $soal->jenis;
 
-        Soal::factory(10)->create()->each(function ($soal) {
-            $opsiCount = rand(4, 6);
-            $correctIndex = rand(0, $opsiCount - 1);
+            // === TWK / TIU ===
+            if ($jenis->tipe_penilaian === 'benar_salah') {
+                $labels = ['A', 'B', 'C', 'D', 'E'];
+                $correctIndex = rand(0, 4);
 
-            SoalOpsi::factory($opsiCount)->create([
-                'soal_id' => $soal->id,
-            ])->each(function ($opsi, $key) use ($correctIndex) {
-                if ($key === $correctIndex) {
-                    $opsi->update(['is_correct' => true]);
+                foreach ($labels as $i => $label) {
+                    SoalOpsi::create([
+                        'soal_id' => $soal->id,
+                        'label' => $label,
+                        'teks' => fake()->sentence(),
+                        'is_correct' => $i === $correctIndex,
+                        'skor' => null,
+                    ]);
                 }
-            });
+            }
+
+            // === TKP ===
+            if ($jenis->tipe_penilaian === 'bobot_opsi') {
+                $labels = ['A', 'B', 'C', 'D', 'E'];
+                $scores = [1, 2, 3, 4, 5];
+                shuffle($scores);
+
+                foreach ($labels as $i => $label) {
+                    SoalOpsi::create([
+                        'soal_id' => $soal->id,
+                        'label' => $label,
+                        'teks' => fake()->sentence(),
+                        'is_correct' => false,
+                        'skor' => $scores[$i],
+                    ]);
+                }
+            }
         });
     }
 }

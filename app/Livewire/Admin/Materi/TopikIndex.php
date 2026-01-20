@@ -17,6 +17,7 @@ class TopikIndex extends Component
     public $search = '';
     public $topikId;
     public $updateMode = false;
+    public $showModal = false;
 
     protected $rules = [
         'nama_topik' => 'required|string|max:255',
@@ -41,7 +42,14 @@ class TopikIndex extends Component
 
     public function resetForm()
     {
-        $this->reset(['nama_topik', 'topikId', 'updateMode']);
+        $this->reset(['nama_topik', 'topikId', 'updateMode', 'showModal']);
+        $this->resetValidation();
+    }
+
+    public function openCreateModal()
+    {
+        $this->resetForm();
+        $this->showModal = true;
     }
 
     public function store()
@@ -60,9 +68,10 @@ class TopikIndex extends Component
     public function edit($id)
     {
         $topik = Topik::findOrFail($id);
-        $this->topikId     = $topik->id;
-        $this->nama_topik  = $topik->nama_topik;
-        $this->updateMode  = true;
+        $this->topikId    = $topik->id;
+        $this->nama_topik = $topik->nama_topik;
+        $this->updateMode = true;
+        $this->showModal  = true;
     }
 
     public function update()
@@ -73,6 +82,11 @@ class TopikIndex extends Component
         $topik->update(['nama_topik' => $this->nama_topik]);
 
         $this->alertSuccess('Berhasil!', 'Topik berhasil diperbarui.');
+        $this->resetForm();
+    }
+
+    public function closeModal()
+    {
         $this->resetForm();
     }
 

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('pertanyaan_text')->nullable();
             $table->enum('media_type', ['none', 'image', 'audio'])->default('none');
             $table->string('media_path')->nullable();
-            $table->string('skor')->default(1);
+            $table->string('skor')->nullable();
             $table->timestamps();
         });
     }

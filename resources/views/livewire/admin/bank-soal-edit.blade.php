@@ -1,4 +1,9 @@
 <div class="container-fluid py-4">
+		@php
+				$isBenarSalah = $tipe_penilaian === 'benar_salah';
+				$isBobotOpsi = $tipe_penilaian === 'bobot_opsi';
+		@endphp
+
 		<div class="row justify-content-center">
 				<div class="col-md-10">
 						<div class="card shadow">
@@ -10,7 +15,7 @@
 												<!-- Jenis Ujian -->
 												<div class="mb-3">
 														<label class="form-label">Jenis Ujian <span class="text-danger">*</span></label>
-														<select wire:model="jenis_id" class="@error('jenis_id') is-invalid @enderror form-select" required>
+														<select wire:model.live="jenis_id" class="@error('jenis_id') is-invalid @enderror form-select" required>
 																<option value="">-- Pilih Jenis --</option>
 																@foreach ($jenisUjian as $jenis)
 																		<option value="{{ $jenis->id }}">{{ $jenis->nama }}</option>
@@ -54,15 +59,6 @@
 														<textarea wire:model="pertanyaan_text" class="form-control" rows="3"></textarea>
 												</div>
 
-												<div class="mb-3">
-														<label class="form-label">Skor <span class="text-danger">*</span></label>
-														<input type="number" wire:model="skor" class="form-control @error('skor') is-invalid @enderror"
-																min="1" required>
-														@error('skor')
-																<small class="text-danger">{{ $message }}</small>
-														@enderror
-												</div>
-
 												<hr>
 
 												<h5 class="mb-3">Pilihan Jawaban</h5>
@@ -73,22 +69,24 @@
 																$mediaType = $item['media_type'] ?? 'none';
 														@endphp
 
-														<div class="card {{ $isCorrect ? 'border-success border-2' : '' }} mb-3">
+														<div class="card {{ $isBenarSalah && $isCorrect ? 'border-success border-2' : '' }} mb-3">
 																<div class="card-body">
 																		<div class="row align-items-center mb-2">
 																				<div class="col-auto">
 																						<span class="badge bg-primary fs-6">{{ $item['label'] }}</span>
 																				</div>
-																				<div class="col">
-																						<div class="form-check">
-																								<input class="form-check-input" type="radio" name="correct_answer"
-																										id="correct_{{ $index }}" value="{{ $index }}"
-																										wire:model.live="correctAnswerIndex">
-																								<label class="form-check-label" for="correct_{{ $index }}">
-																										Jawaban Benar
-																								</label>
+																				@if ($isBenarSalah)
+																						<div class="col">
+																								<div class="form-check">
+																										<input class="form-check-input" type="radio" wire:model="correctAnswerIndex"
+																												value="{{ $index }}">
+																										<label class="form-check-label">
+																												Jawaban Benar
+																										</label>
+																								</div>
 																						</div>
-																				</div>
+																				@endif
+
 																				<div class="col-auto">
 																						@if (count($opsi) > 2)
 																								<button type="button" wire:click="removeOpsi({{ $index }})"
@@ -131,6 +129,18 @@
 																						</small>
 																				@endif
 																		@endif
+
+																		@if ($isBobotOpsi)
+																				<div class="mt-2">
+																						<label class="form-label">Skor Opsi (1–5)</label>
+																						<input type="number" wire:model="opsi.{{ $index }}.skor" min="1" max="5"
+																								class="form-control">
+																						@error("opsi.$index.skor")
+																								<small class="text-danger">{{ $message }}</small>
+																						@enderror
+																				</div>
+																		@endif
+
 																</div>
 														</div>
 												@endforeach
@@ -141,9 +151,12 @@
 														</button>
 												@endif
 
-												@error('correctAnswerIndex')
-														<div class="alert alert-danger">{{ $message }}</div>
-												@enderror
+												@if ($isBenarSalah)
+														@error('correctAnswerIndex')
+																<div class="alert alert-danger">{{ $message }}</div>
+														@enderror
+												@endif
+
 
 												@if ($errors->any())
 														<div class="alert alert-danger mt-3">

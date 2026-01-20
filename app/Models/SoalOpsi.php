@@ -17,9 +17,13 @@ class SoalOpsi extends Model
         'media_type',
         'media_path',
         'is_correct',
+        'skor',
     ];
+
+
 
     protected $casts = [
         'is_correct' => 'boolean',
+        'skor' => 'integer',
     ];
 }

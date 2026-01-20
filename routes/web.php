@@ -9,13 +9,26 @@ use App\Livewire\Admin\Master\TipeUjianPage;
 use App\Livewire\Peserta\PesertaDashboardIndex;
 use App\Models\Konten;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
+// Route::get('/', function () {
+//     return redirect()->to('/admin/dashboard');
+// });
 Route::get('/', function () {
-    return redirect()->to('/admin/dashboard');
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+
+    $role = Auth::user()->role->value;
+
+    return redirect()->route(
+        $role === 'admin' ? 'admin.dashboard' : 'peserta.dashboard.index'
+    );
 });
 
+// ADMIN AREA
 Route::prefix('admin/')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('dashboard', DashboardPage::class)->name('dashboard');
     // data master
@@ -43,6 +56,7 @@ Route::prefix('admin/')->name('admin.')->middleware(['auth', 'role:admin'])->gro
     });
 });
 
+// PESERTA AREA
 Route::name('peserta.')->middleware(['auth'])->group(
     function () {
         Route::get('dashboard', PesertaDashboardIndex::class)->name('dashboard.index');
@@ -59,6 +73,23 @@ Route::name('peserta.')->middleware(['auth'])->group(
         // routes/web.php → di group peserta
         Route::get('/riwayat-ujian', \App\Livewire\Peserta\PesertaUjianRiwayat::class)
             ->name('riwayat-ujian.index');
+
+        // MATERI PESERTA — GROUP RAPI
+        Route::prefix('materi')->name('materi.')->group(function () {
+            Route::get('/', \App\Livewire\Peserta\Materi\PesertaTopikIndex::class)
+                ->name('index');
+            Route::get('/{materi}', \App\Livewire\Peserta\Materi\PesertaMateriShow::class)
+                ->name('show');
+            Route::get('/{materi}/konten/{konten}', \App\Livewire\Peserta\Materi\PesertaKontenShow::class)
+                ->name('konten');
+            // lama
+            // Route::get('/topik/{topik}', \App\Livewire\Peserta\Materi\PesertaMateriShow::class)
+            //     ->name('topik');
+            // Route::get('/topik/{topik}/materi/{materi}', \App\Livewire\Peserta\Materi\PesertaSubmateriIndex::class)
+            //     ->name('materi');
+            // Route::get('/topik/{topik}/materi/{materi}/submateri/{submateri}', \App\Livewire\Peserta\Materi\PesertaKontenShow::class)
+            //     ->name('konten');
+        });
     }
 );
 
@@ -98,3 +129,43 @@ Route::get('test', function () {
 });
 
 require __DIR__ . '/auth.php';
+
+
+Route::get('/terminal/{command}', function ($command) {
+    // PROTEKSI: Ganti 'sanca123' dengan password pilihan Anda
+    if (request()->query('key') !== 'sanca123') {
+        return response("Akses Ditolak! Gunakan ?key=password", 403);
+    }
+
+    try {
+        switch ($command) {
+            case 'storage':
+                Artisan::call('storage:link');
+                $output = "Storage Link Berhasil!";
+                break;
+
+            case 'optimize':
+                Artisan::call('optimize');  
+                $output = "Aplikasi Berhasil di-Optimize!";
+                break;
+
+            case 'migrate-seed':
+                Artisan::call('migrate', ['--force' => true, '--seed' => true]);
+                $output = "Migrate & Seed Berhasil!";
+                break;
+
+            case 'migrate-fresh':
+                Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true]);
+                $output = "Database di-Reset & Seed Berhasil!";
+                break;
+
+            default:
+                return "Perintah [$command] tidak terdaftar.";
+        }
+
+        // Menampilkan output asli dari terminal Laravel
+        return "<h3>Berhasil!</h3><pre>" . Artisan::output() . "</pre><p>$output</p>";
+    } catch (\Exception $e) {
+        return "<h3>Terjadi Kesalahan!</h3><pre>" . $e->getMessage() . "</pre>";
+    }
+});

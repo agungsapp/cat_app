@@ -30,8 +30,9 @@ class KontenIndex extends Component
     public $search = '';
     public $kontenId;
     public $updateMode = false;
+    public $showModal = false;
 
-    // VALIDASI DINAMIS – INI YANG FIX ERROR MESSAGE TIDAK MUNCUL!
+    // VALIDASI DINAMIS
     protected function rules()
     {
         $rules = [
@@ -96,8 +97,15 @@ class KontenIndex extends Component
 
     public function resetForm()
     {
-        $this->reset(['tipe', 'youtube_url', 'isi', 'file', 'kontenId', 'updateMode']);
+        $this->reset(['tipe', 'youtube_url', 'isi', 'file', 'kontenId', 'updateMode', 'showModal']);
         $this->resetValidation();
+        $this->tipe = 'video'; // default kembali ke video
+    }
+
+    public function openCreateModal()
+    {
+        $this->resetForm();
+        $this->showModal = true;
     }
 
     public function store()
@@ -127,15 +135,19 @@ class KontenIndex extends Component
     public function edit($id)
     {
         $konten = Konten::findOrFail($id);
-        $this->kontenId = $konten->id;
-        $this->tipe     = $konten->tipe;
-        $this->isi      = $konten->isi;
+        $this->kontenId    = $konten->id;
+        $this->tipe        = $konten->tipe;
+        $this->isi         = $konten->isi;
 
         if ($konten->tipe === 'video') {
             $this->youtube_url = $konten->file_path;
+            $this->file        = null;
+        } else {
+            $this->youtube_url = null;
         }
 
         $this->updateMode = true;
+        $this->showModal  = true;
     }
 
     public function update()
@@ -151,6 +163,11 @@ class KontenIndex extends Component
 
         if ($this->tipe === 'video') {
             $data['file_path'] = $this->youtube_url;
+
+            // Jika sebelumnya PDF, hapus file lama
+            if ($konten->tipe === 'pdf' && $konten->file_path) {
+                Storage::disk('public')->delete($konten->file_path);
+            }
         } elseif ($this->tipe === 'pdf') {
             if ($this->file) {
                 if ($konten->file_path) {
@@ -158,11 +175,17 @@ class KontenIndex extends Component
                 }
                 $data['file_path'] = $this->file->store('konten/pdf', 'public');
             }
+            // Jika sebelumnya video, tidak perlu hapus apa-apa (hanya string URL)
         }
 
         $konten->update($data);
 
         $this->alertSuccess('Berhasil!', 'Konten berhasil diperbarui.');
+        $this->resetForm();
+    }
+
+    public function closeModal()
+    {
         $this->resetForm();
     }
 

@@ -14,7 +14,7 @@ new #[Layout('layouts.guest')] class extends Component {
         $this->form->authenticate();
         Session::regenerate();
 
-        Auth::user()->is_admin ? $this->redirectIntended(route('dashboard'), navigate: false) : $this->redirectIntended(route('admin.dashboard'), navigate: false);
+        Auth::user()->is_admin ? $this->redirectIntended(route('admin.dashboard'), navigate: false) : $this->redirectIntended(route('peserta.dashboard.index'), navigate: false);
     }
 };
 ?>

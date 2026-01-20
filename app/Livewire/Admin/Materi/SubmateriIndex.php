@@ -21,6 +21,7 @@ class SubmateriIndex extends Component
     public $search = '';
     public $submateriId;
     public $updateMode = false;
+    public $showModal = false;
 
     protected $rules = [
         'judul' => 'required|string|max:255',
@@ -54,7 +55,14 @@ class SubmateriIndex extends Component
 
     public function resetForm()
     {
-        $this->reset(['judul', 'submateriId', 'updateMode']);
+        $this->reset(['judul', 'submateriId', 'updateMode', 'showModal']);
+        $this->resetValidation();
+    }
+
+    public function openCreateModal()
+    {
+        $this->resetForm();
+        $this->showModal = true;
     }
 
     public function store()
@@ -77,6 +85,7 @@ class SubmateriIndex extends Component
         $this->submateriId = $sub->id;
         $this->judul       = $sub->judul;
         $this->updateMode  = true;
+        $this->showModal   = true;
     }
 
     public function update()
@@ -87,6 +96,11 @@ class SubmateriIndex extends Component
         $sub->update(['judul' => $this->judul]);
 
         $this->alertSuccess('Berhasil!', 'Submateri berhasil diperbarui.');
+        $this->resetForm();
+    }
+
+    public function closeModal()
+    {
         $this->resetForm();
     }
 
