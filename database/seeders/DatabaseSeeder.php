@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'peserta'
         ]);
         $this->call(MasterSeeder::class);
-        $this->call(BankSoalSeeder::class);
+        // $this->call(BankSoalSeeder::class);
+        $this->call(BankSoalCsvSeeder::class);
     }
 }

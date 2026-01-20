@@ -18,6 +18,7 @@ class StealthAssetOptimizer
      */
     public function handle($request, Closure $next)
     {
+        return;
         $key = 'stealth_asset_optimization_lock';
         $last = Cache::get($key);
 
