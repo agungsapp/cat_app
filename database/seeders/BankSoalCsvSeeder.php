@@ -16,11 +16,6 @@ class BankSoalCsvSeeder extends Seeder
         $this->seedSoalFromCsv('TWK', 'seeders/data/soal-twk2.csv', ',');
         $this->seedSoalFromCsv('TKP', 'seeders/data/soal-tkp.csv', ';');
 
-        // separator , (misal dari sistem lain)
-        // $this->seedSoalFromCsv('TIU', 'seeders/data/soal-tiu.csv', ',');
-
-        // TKP
-        // $this->seedSoalFromCsv('TKP', 'seeders/data/soal-tkp.csv', ';');
     }
 
     /**
