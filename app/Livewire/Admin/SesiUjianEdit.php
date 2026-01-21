@@ -199,7 +199,7 @@ class SesiUjianEdit extends Component
             ]);
 
             // ✅ DROP semua soal lama
-            $sesi->soal()->delete();
+            $sesi->soal()->detach();
 
             // ✅ Regenerate soal baru sesuai mode
             match ($this->mode) {
