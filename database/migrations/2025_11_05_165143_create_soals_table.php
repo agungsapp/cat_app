@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('soals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('jenis_id')->constrained('jenis_ujians')->onDelete('restrict');
-            $table->string('pertanyaan_text')->nullable();
+            $table->text('pertanyaan_text')->nullable();
             $table->enum('media_type', ['none', 'image', 'audio'])->default('none');
             $table->string('media_path')->nullable();
             $table->string('skor')->nullable();
